@@ -3,17 +3,17 @@
 #include <SymbolList.h>
 #include <Symbol.h>
 class Symbol;
+
 using SymbolMap = unordered_map<string,*Symbol>;
 using Context = pair<string,SymbolMap>;
 
 class SymbolTable{
-  private:
-	SymbolTable();
+  private:	SymbolTable();
   public:
 	static Context *local;
 	static list<Context> context;
 	static SymbolMap alias;
-	static array<*Symbol,id_end> idtable;
+	static Symbol *idtable[id_end];
 	
 	static void init();
 	static void finish();

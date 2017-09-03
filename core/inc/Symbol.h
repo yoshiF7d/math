@@ -3,14 +3,15 @@
 
 #include <Attributes.h>
 #include <Associativity.h>
+#include <iostream>
 
 class Expr;
 union Data;
 class Symbol{
   public:
-	Expr *field = nullptr;
-	string name;
-	string symbol;
+	Expr *field;
+	std::string name;
+	std::string mark[2];
 	unsigned int id;
 	unsigned int precedence;
 	Attributes attributes;
@@ -18,8 +19,8 @@ class Symbol{
 	Expr *rules;
 	Expr *alias;
 	
-	Symbol(string name, 
-		   string symbol,
+	Symbol(std::string name, 
+		   string mark[2],
 		   unsigned int id, 
 		   unsigned int precedence,
 		   Attributes attributes,
@@ -32,8 +33,8 @@ class Symbol{
 	
 	virtual Expr* function(Expr *);
 	virtual void printdoc();
-	virtual string toString();
-	virtual string toString(&Data);
+	virtual std::string toString();
+	virtual std::string toString(&Data);
 	virtual bool operator == (const Symbol&, const Symbol&);
 	virtual void data_init(&Data);
 	virtual void data_finish(&Data);

@@ -1,10 +1,11 @@
 #include <Expr.h>
+class SymbolTable;
 
 Expr::Expr(int id) : data(id) {
 	symbol = SymbolTable::get(id);
 }
 
-Expr::Expr(string string){
+Expr::Expr(std::string string){
 	symbol = SymbolTable::get(string);
 	symbol->data_init(this->data);
 }
@@ -16,9 +17,10 @@ Expr::Expr(Symbol *symbol){
 Expr::Expr(const Expr& expr){
 	symbol = expr.symbol;
 	data(expr.data,symbol);
-	flag=expr.flag;
 	next=expr.next;
+	previous=expr.previous;
 	child=expr.child;
+	parent=expr.parent;
 }
 
 void Expr::deleteRoot(){
@@ -84,32 +86,34 @@ Expr* Expr::append(Expr *expr){
 	Expr *e;
 	for(e=this;e->next;e=e->next){}
 	e->next = expr;
+	expr->previous = e;
 	return this;
 }
 
 Expr* Expr::appendChild(Expr *child){
-	this->child->append(child);
+	if(this->child){this->child->append(child);}
+	else{this->child = child;}
+	for(Expr* e=this->child;e;e=e->next){e->parent = this;}
 	return this;
 }
 
 Expr* Expr::prependChild(Expr *child){
-	if(child){
-		this->child = child->append(this->child);
-	}
+	if(child){this->child = child->append(this->child);}
+	else{this->child = child;}
+	for(Expr* e=this->child;e;e=e->next){e->parent = this;}
 	return this;
 }
 
 Expr* Expr::insert(Expr *p, Expr *c){
 	if(!p){
 		return this->appendChild(c);
-	}else if(!c){
-		return p->appendChild(this);
-	}else if(p==c){
+	}else if(!c || p==c){
 		return p->appendChild(this);
 	}else if(p->child != c){
-		cout << __func__ + "Expr_insert : p and c are not parent-child\n";
+		cout << __func__ + "p and c are not parent-child\n";
 	}
 	p->child = this;
+	this->parent = p;
 	this->appendChild(c);
 	return p;
 }
@@ -133,7 +137,9 @@ friend void Expr::swap(Expr& e1,Expr& e2){
 	swap(e1.data,e2.data);
 	swap(e1.flag.e2.flag);
 	swap(e1.next,e2.next);
+	swap(e1.previous,e2.previous);
 	swap(e1.child,e2.child);
+	swap(e1.parent,e2.parent);
 }
 
 Expr& Expr::operator = (Expr other){

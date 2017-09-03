@@ -11,7 +11,7 @@ class Depth : public Symbol{
 	int mod(Expr *expr){
 		Expr *e;
 		int depth=1,max=0,m;
-		for(e=expr->child;e;e=e->next){
+		for(e=(expr->child);e;e=e->next){
 			m = mod(e);
 			if(max < m){
 				max = m;

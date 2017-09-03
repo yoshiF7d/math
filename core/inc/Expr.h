@@ -8,31 +8,14 @@
 #define PREC_SYMBOL -1
 #define PREC_MATCH -2
 
-enum en_eflag{
-	ef_func=0x0001, /*to distinguish expressions like a[] and a*/
-	ef_full=0x0002, /*to distinguish expressions like ^ and Power*/
-	ef_mark=0x0004, /*this flag can be used in any way. marked node become red color when printed with TreeForm_mod*/
-};
-
 class Symbol;
 union Data;
-
-class Expr;
-
-class Atom : public Expr{
-  public:
-	Symbol *symbol;
-	Data data;
-}
-
-class List : public Expr{
-  public:
-	Expr *child;
-}
 
 class Expr{
   public:
 	Expr *next;
+	Expr *previous;
+	Expr *parent;
 	Expr *child;
 	Symbol *symbol;
 	Data data;

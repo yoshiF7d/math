@@ -1,5 +1,4 @@
 #include <SymbolTable.h>
-using namespace std;
 static void SymbolTable::init(){
 	MAKE_CONTEXT(list,idtable)
 	break;
@@ -10,6 +9,10 @@ static void SymbolTable::finish(){
 		delete t;
 	}
 	list.clear();
+}
+
+static Symbol** SymbolTable::getTable(){
+	return idtable;
 }
 
 static Symbol* SymbolTable::get(int id){

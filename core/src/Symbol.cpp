@@ -1,7 +1,7 @@
 #include <Symbol.h>
 
 Symbol::Symbol(string name, 
-			   string symbol,
+			   string[2] mark,
 			   unsigned int id, 
 			   unsigned int precedence,
 			   Attributes attributes,
@@ -11,7 +11,7 @@ Symbol::Symbol(string name,
 			   )
 :
 		name(name),
-		symbol(symbol),
+		mark(mark),
 		id(id),
 		precedence(precedence)
 {
@@ -24,7 +24,8 @@ Symbol::Symbol(string name,
 void Symbol::print(){
 	Expr *e;
 	if(this->symbol){
-		cout << setw(26) << left << KCYN << this->name << this->symbol << KNRM;
+		cout << setw(26) << left << KCYN << this->name << this->mark[0] <<
+				this->mark[1] << KNRM;
 	}else{
 		cout << setw(26) << left << KCYN << this->name << KNRM;
 	}
