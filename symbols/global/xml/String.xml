@@ -1,0 +1,34 @@
+<NAME>String</NAME>
+<PRECEDENCE>1000</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SOURCE>
+static Expr *create(std::string string){
+	Expr *expr = new Expr(global_String);
+	expr->data = new StringData(string);
+	expr->next = nullptr;
+	expr->previous = nullptr;
+	expr->child = nullptr;
+	expr->parent = nullptr;
+	return expr;
+}
+</SOURCE>
+<DOC>
+String is the head of a character string "text" 
+</DOC>
+<DATAINC>
+struct StringData : Data{
+	std::string string;
+	StringData();
+	StringData(std::string);
+	~StringData();
+};
+</DATAINC>
+<DATASRC>
+StringData::StringData(){
+	this->string = "";
+}
+StringData::StringData(std::string){
+	this->string = string;
+}
+StringData::~StringData(){}
+</DATASRC>

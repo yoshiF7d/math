@@ -1,0 +1,28 @@
+<NAME>FullForm</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SOURCE>
+static Expr* mod(Expr* expr){
+	std::string buf = expr->toString();
+	if(!expr){std::cout << "null"; return expr;}
+	std::cout << buf;
+	if(expr->child){
+		std::cout << "[";
+		for(Expr *e=$00;e;e=e->next){
+			mod(e);
+			if(e->next){std::cout << ",";}
+		}
+		std::cout << "]";
+	}
+	return expr;
+}
+Expr* function(Expr* expr) override{
+	if(!expr->child){return expr;}
+	mod($00);
+	std::cout << std::endl;
+	return expr;
+}
+</SOURCE>
+<DOC>
+FullForm[expr] prints as the full form of expr, with no special syntax.
+</DOC>

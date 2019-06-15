@@ -1,0 +1,8 @@
+<NAME>DivideBy</NAME>
+<PRECEDENCE>100</PRECEDENCE>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SYMBOL>"/="</SYMBOL>
+<ATTRIBUTES>HoldFirst|Protected</ATTRIBUTES>
+<DOC>
+x/=c divides x by c and returns the new value of x.
+</DOC>

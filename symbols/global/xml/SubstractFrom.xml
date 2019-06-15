@@ -1,0 +1,8 @@
+<NAME>SubtractFrom</NAME>
+<PRECEDENCE>100</PRECEDENCE>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SYMBOL>"-="</SYMBOL>
+<ATTRIBUTES>HoldFirst|Protected</ATTRIBUTES>
+<DOC>
+x-=dx subtract dx from x and returns the new value of x.
+</DOC>

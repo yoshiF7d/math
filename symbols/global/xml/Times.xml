@@ -1,0 +1,9 @@
+<NAME>Times</NAME>
+<ALIAS>{乗算}</ALIAS>
+<PRECEDENCE>400</PRECEDENCE>
+<ASSOCIATIVITY>none</ASSOCIATIVITY>
+<SYMBOL>"*"</SYMBOL>
+<ATTRIBUTES>Flat | Listable | NumericFunction | OneIdentity | Orderless | Protected</ATTRIBUTES>
+<DOC>
+x*y*z or x y z represents a product of terms.
+</DOC>

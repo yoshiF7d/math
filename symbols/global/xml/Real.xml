@@ -1,0 +1,33 @@
+<NAME>Real</NAME>
+<PRECEDENCE>1000</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SOURCE>
+double getDouble(Expr expr){
+	return 0;
+}
+
+int sign(Expr expr){
+	return 0;
+}
+static Expr *create(std::string string){
+	Expr *expr = new Expr(global_Real);
+	getData(RealData,expr->data,real) = strtold(string.c_str(),NULL);
+	return expr;
+}
+</SOURCE>
+<DOC>
+Real is the head used for reals.
+</DOC>
+<DATAINC>
+struct RealData : Data{
+	#ifdef mpz
+		mpf_class real;
+	#else
+		double real;
+	#endif
+	~RealData();
+};
+</DATAINC>
+<DATASRC>
+RealData::~RealData(){};
+</DATASRC>

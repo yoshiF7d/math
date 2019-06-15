@@ -1,0 +1,29 @@
+<NAME>LeftBracket</NAME>
+<PRECEDENCE>1000</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DATAINC>
+struct LeftBracketData : Data{
+	Expr *expr;
+	LeftBracketData();
+	~LeftBracketData();
+	bool operator ==(const Data& data) override;
+	std::string toString() override;
+};
+</DATAINC>
+<DATASRC>
+LeftBracketData::LeftBracketData() : expr(nullptr){};
+LeftBracketData::~LeftBracketData(){};
+bool LeftBracketData::operator ==(const Data& data){
+	return this->expr == static_cast<const LeftBracketData&>(data).expr;
+};
+std::string LeftBracketData::toString(){
+	std::string str;
+	if(this->expr){
+		str = "Left ";
+	    str += this->expr->toString();
+	}else{
+		str="LeftBracket";
+	}
+	return str;
+}
+</DATASRC>

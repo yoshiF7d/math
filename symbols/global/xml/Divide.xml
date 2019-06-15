@@ -1,0 +1,8 @@
+<NAME>Divide</NAME>
+<PRECEDENCE>470</PRECEDENCE>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SIGN>"/"</SIGN>
+<ATTRIBUTES>Listable|NumericFunction|Protected</ATTRIBUTES>
+<DOC>
+x/y or Divide[x,y] is equivalent to xy^-1.
+</DOC>

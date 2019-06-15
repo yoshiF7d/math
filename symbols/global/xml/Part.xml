@@ -1,0 +1,13 @@
+<NAME>Part</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ASSOCIATIVITY>bracket</ASSOCIATIVITY>
+<ATTRIBUTES>Locked|Protected</ATTRIBUTES>
+<SYMBOL>"[[]]"</SYMBOL>
+<DOC>
+expr[[i]] or Part[expr,i] gives the ith part of expr.
+expr[[-i]] counts from the end.
+expr[[i,j,...]] or Part[expr,i,j,...] is equivalent to expr[[i]][[j]].... 
+expr[[{i1,i2,...}]] gives a list of the parts i1, i2, ... of expr. 
+expr[[m;;n]] gives parts m through n.
+expr[[m;;n;;s]] gives parts m through n in steps of s.
+</DOC>

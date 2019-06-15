@@ -1,0 +1,20 @@
+<NAME>Character</NAME>
+<PRECEDENCE>1000</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DATAINC>
+struct CharacterData : Data{
+    int character;
+	~CharacterData();
+	bool operator ==(const Data& data) override;
+	std::string toString() override;
+};
+</DATAINC>
+<DATASRC>
+bool CharacterData::operator ==(const Data& data){
+	return this->character == static_cast<const CharacterData&>(data).character;
+};
+std::string CharacterData::toString(){
+	return std::string(1,character);
+}
+CharacterData::~CharacterData(){};
+</DATASRC>

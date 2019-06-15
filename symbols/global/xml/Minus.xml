@@ -1,0 +1,8 @@
+<NAME>Minus</NAME>
+<PRECEDENCE>480</PRECEDENCE>
+<ASSOCIATIVITY>pre</ASSOCIATIVITY>
+<SYMBOL>"-"</SYMBOL>
+<ATTRIBUTES>Listable|NumericFunction|Protected</ATTRIBUTES>
+<DOC>
+-x is arithmetic negation of x.
+</DOC>

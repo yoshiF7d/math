@@ -1,0 +1,8 @@
+<NAME>List</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ASSOCIATIVITY>bracket</ASSOCIATIVITY>
+<SYMBOL>"{}"</SYMBOL>
+<ATTRIBUTES>Locked|Protected</ATTRIBUTES>
+<DOC>
+{e1,e2,...} is a list of elements.
+</DOC>

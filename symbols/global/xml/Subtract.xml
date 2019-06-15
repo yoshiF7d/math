@@ -1,0 +1,8 @@
+<NAME>Subtract</NAME>
+<PRECEDENCE>310</PRECEDENCE>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SYMBOL>"-"</SYMBOL>
+<ATTRIBUTES>Listable|NumericFunction|Protected</ATTRIBUTES>
+DOC>
+x - y is equivalent to x + (-1 * y).
+</DOC>

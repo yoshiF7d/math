@@ -1,0 +1,15 @@
+<NAME>Span</NAME>
+<PRECEDENCE>305</PRECEDENCE>
+<ASSOCIATIVITY>separator</ASSOCIATIVITY>
+<SYMBOL>";;"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+i;;j represents a span of elements i through j.
+i;; represents a span from i to the end.
+;;j represents a span from the beginning to j.
+;; represents a span that includes all elements.
+i;;j;;k represents a span from i through j in steps of k.
+i;; ;;k represents a span from i to the end in steps of k.
+;;j;;k represents a span from the beginning to j in steps of k.
+;; ;;k represents a span from the beginning to the end in steps of k.
+</DOC>

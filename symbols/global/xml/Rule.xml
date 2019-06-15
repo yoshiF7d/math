@@ -1,0 +1,8 @@
+<NAME>Rule</NAME>
+<PRECEDENCE>120</PRECEDENCE>
+<ASSOCIATIVITY>right</ASSOCIATIVITY>
+<SYMBOL>"->"</SYMBOL>
+<ATTRIBUTES>Locked|Protected</ATTRIBUTES>
+<DOC>
+lhs->rhs represents a rule that transforms lhs to rhs.
+</DOC>

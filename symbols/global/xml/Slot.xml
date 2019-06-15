@@ -1,0 +1,9 @@
+<NAME>Slot</NAME>
+<PRECEDENCE>740</PRECEDENCE>
+<ASSOCIATIVITY>un_pre</ASSOCIATIVITY>
+<SYMBOL>"#"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+# represents the first argument supplied to a pure function.
+# n represents the nth argument.
+</DOC>

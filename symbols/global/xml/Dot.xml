@@ -1,0 +1,8 @@
+<NAME>Dot</NAME>
+<PRECEDENCE>490</PRECEDENCE>
+<ATTRIBUTES>Flat|OneIdentity|Protected</ATTRIBUTES>
+<ASSOCIATIVITY>none</ASSOCIATIVITY>
+<SYMBOL>"."</SYMBOL>
+<DOC>
+a.b.c or Dot[a,b,c] gives products of vectors, matrices, and tensors.
+</DOC>

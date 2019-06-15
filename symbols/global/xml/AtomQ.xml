@@ -1,0 +1,30 @@
+<NAME>AtomQ</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SOURCE>
+Expr *function(Expr *expr){
+	if(!$00){return expr;}
+	if(mod($00)){
+		expr->symbol = SymbolTable::get(global_True);
+	}else{
+		expr->symbol = SymbolTable::get(global_False);
+	}
+	$00->deleteRoot();
+	$00=NULL;
+	return expr;
+}
+
+static bool mod(Expr *expr){
+	switch(expr->symbol->id){
+	  case global_Integer:
+	  case global_Real:
+	  case global_String:
+		return true;
+	  default:
+		return false;
+	}
+}
+</SOURCE>
+<DOC>
+AtomQ[expr] yields True if expr is an expression which cannot be divided into subexpressions, and yields False otherwise.
+</DOC>

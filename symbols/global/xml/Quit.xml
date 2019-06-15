@@ -1,0 +1,12 @@
+<NAME>Quit</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ATTRIBUTES>Locked|Protected</ATTRIBUTES>
+<SOURCE>
+Expr* function(Expr* expr) override{
+	expr->deleteRoot();
+	return nullptr;
+}
+</SOURCE>
+<DOC>
+Quit this program.
+</DOC>

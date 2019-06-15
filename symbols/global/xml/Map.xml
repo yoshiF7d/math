@@ -1,0 +1,9 @@
+<NAME>Map</NAME>
+<PRECEDENCE>620</PRECEDENCE>
+<ASSOCIATIVITY>right</ASSOCIATIVITY>
+<SYMBOL>"/@"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+Map[f,expr] or f/@expr applies f to each element on the first level in expr.
+Map[f,expr,levelspec] applies f to parts of expr specified by levelspec.
+</DOC>
