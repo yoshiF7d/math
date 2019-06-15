@@ -1,7 +1,7 @@
 #ifndef ASSOCIATIVITY_H
 #define ASSOCIATIVITY_H
 enum Associativity{
-	left=1,
+	left,
 	right,
 	none,
 	pre,

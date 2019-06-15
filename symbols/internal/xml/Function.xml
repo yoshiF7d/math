@@ -1,7 +1,0 @@
-<NAME>Function</NAME>
-<ATTRIBUTES>Protected</ATTRIBUTES>
-<ASSOCIATIVITY>braces</ASSOCIATIVITY>
-<SYMBOL>"[","]"<SYMBOL>
-<DOC>
-Depth[expr] gives the maximum number of indices needed to specify any part of expr, plus 1.
-</DOC>

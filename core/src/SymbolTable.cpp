@@ -1,33 +1,52 @@
 #include <SymbolTable.h>
-static void SymbolTable::init(){
-	MAKE_CONTEXT(list,idtable)
-	break;
+#include <Symbol.h>
+
+Context * SymbolTable::local;
+std::list<Context> SymbolTable::context;
+SymbolMap SymbolTable::alias;
+Symbol * SymbolTable::idtable[ID::end];
+
+void SymbolTable::init(){
+	context.push_back(make_pair("local",SymbolMap{}));
+	local = &context.front();
+	MAKE_CONTEXT(context,idtable)
+	for(auto&& c : context){
+		for(auto&& t : c.second){
+			Symbol *symbol = t.second;
+			if(!symbol->aliasstr.empty()){
+				
+			}
+			if(!symbol->rulesstr.empty()){
+				
+			}
+		}
+	}
 }
 
-static void SymbolTable::finish(){
+void SymbolTable::finish(){
 	for(auto& t : idtable){
 		delete t;
 	}
-	list.clear();
+	context.clear();
 }
 
-static Symbol** SymbolTable::getTable(){
-	return idtable;
-}
-
-static Symbol* SymbolTable::get(int id){
+Symbol* SymbolTable::get(int id){
 	return idtable[id];
 }
 
-static Symbol* SymbolTable::get(string name){
-	SymbolMap::iterator s;
+Symbol* SymbolTable::get(std::string name){
 	for(auto&& c : context){
-		if((s=c.second.find(name))!=c.second.end()){
-			return s->second;
+		if(c.second.find(name) != c.second.end()){
+			return c.second.find(name)->second;
 		}
 	}
-	if((s = alias.find(name))!=alias.end()){
-		return s->second;
+	/*
+	if(alias.find(name) != alias.end()){
+		symbol = alias.find(name)->second;
+		return symbol;
 	}
-	this->local->second[name] = make_unique<Symbol>(name,"",0,0,nullptr,0,0,nullptr,nullptr);
+	*/
+	Symbol* symbol = new Symbol(name,"",0,1000,0,0,"","");
+	local->second[name] = symbol;
+	return symbol;
 }

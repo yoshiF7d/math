@@ -1,33 +1,66 @@
+#include <utility>
 #include <Expr.h>
-class SymbolTable;
+#include <Symbol.h>
+#include <SymbolTable.h>
 
-Expr::Expr(int id) : data(id) {
+Expr::Expr(int id){
 	symbol = SymbolTable::get(id);
+	data = symbol->createData();
+	next=nullptr;
+	previous=nullptr;
+	child=nullptr;
+	parent=nullptr;
+	printf("Expr_id\t");
+	printf("%x\t",this);
+	std::cout << symbol->name << "\n";
 }
 
 Expr::Expr(std::string string){
+	printf("Expr_string\n");
 	symbol = SymbolTable::get(string);
-	symbol->data_init(this->data);
+	data = symbol->createData();
+	next=nullptr;
+	previous=nullptr;
+	child=nullptr;
+	parent=nullptr;
 }
 
 Expr::Expr(Symbol *symbol){
 	this->symbol = symbol;
+	data = symbol->createData();
+	next=nullptr;
+	previous=nullptr;
+	child=nullptr;
+	parent=nullptr;
+	printf("Expr_symbol\t");
+	printf("%x\t",this);
+	std::cout << symbol->name << "\n";
 }
 
 Expr::Expr(const Expr& expr){
 	symbol = expr.symbol;
-	data(expr.data,symbol);
-	next=expr.next;
-	previous=expr.previous;
-	child=expr.child;
-	parent=expr.parent;
+	data = symbol->createData();
+	next=nullptr;
+	previous=nullptr;
+	child=nullptr;
+	parent=nullptr;
+	printf("Expr_copy\t");
+	printf("%x\t",this);
+	std::cout << symbol->name << "\n";
+}
+
+Expr::~Expr(){
+	printf("~Expr\t",this);
+	printf("%x\t",this);
+	std::cout << symbol->name << "\n";
+	symbol->deleteData(data);
 }
 
 void Expr::deleteRoot(){
-	Expr *c, *n;
-	for(c=child;c;c=n){
-		n = c->next;
+	for(Expr* c=child;c;){
+		Expr* n = c->next;
 		c->deleteRoot();
+		c = n;
 	}
 	delete this;
 }
@@ -70,16 +103,24 @@ int Expr::getLength(){
 	return i;
 }
 
-string Expr::toString(){
-	return this->symbol->toString(this->data);
+std::string Expr::toString(){
+	if(this->data){
+		return this->data->toString();
+	}else{
+		return this->symbol->toString();
+	}
 }
 
-static Expr* Expr::appendTo(Expr *expr,Expr *next){
+Expr* Expr::appendTo(Expr *expr,Expr *next){
 	if(expr){
 		return expr->append(next);
 	}else{
 		return next;
 	}
+}
+
+Expr* Expr::copy(){
+	return new Expr(*this);
 }
 
 Expr* Expr::append(Expr *expr){
@@ -109,13 +150,43 @@ Expr* Expr::insert(Expr *p, Expr *c){
 		return this->appendChild(c);
 	}else if(!c || p==c){
 		return p->appendChild(this);
-	}else if(p->child != c){
-		cout << __func__ + "p and c are not parent-child\n";
+	}else if(c->parent != p){
+		std::cout << __func__ << ": "; 
+		if(p){std::cout << p->toString();
+		}else{std::cout << "null";}
+		std::cout << " is not a parent of ";
+		if(c){std::cout << c->toString();
+		}else{std::cout << "null";}
+		std::cout << "\n";
+		exit(1);
 	}
-	p->child = this;
-	this->parent = p;
+	c->replace(this);
+	c->next = c->previous = nullptr;
 	this->appendChild(c);
 	return p;
+}
+
+Expr* Expr::replace(Expr *expr){
+	Expr* previous = nullptr;
+	Expr* next = nullptr;
+	Expr* parent = nullptr;
+	
+	parent = this->parent;
+	previous = this->previous;
+	next = this->next;
+
+	if(expr!=next){expr->next=next;}
+	if(expr!=previous){expr->previous=previous;}
+	if(expr!=parent){expr->parent=parent;}
+	if(previous){
+		if(expr!=previous){previous->next=expr;}
+	}else{
+		if(parent && expr!=parent){parent->child = expr;}
+	}
+	if(next){
+		if(expr!=next){next->previous=expr;}
+	}
+	return expr;
 }
 
 Expr* Expr::getChild(int index){
@@ -131,25 +202,24 @@ Expr* Expr::getChild(int index){
 }
 
 
-friend void Expr::swap(Expr& e1,Expr& e2){
-	using std::swap;
-	swap(e1.symbol,e2.symbol);
-	swap(e1.data,e2.data);
-	swap(e1.flag.e2.flag);
-	swap(e1.next,e2.next);
-	swap(e1.previous,e2.previous);
-	swap(e1.child,e2.child);
-	swap(e1.parent,e2.parent);
+void Expr::swap(Expr& e1,Expr& e2){
+	std::swap(e1.symbol,e2.symbol);
+	std::swap(e1.data,e2.data);
+	std::swap(e1.next,e2.next);
+	std::swap(e1.previous,e2.previous);
+	std::swap(e1.child,e2.child);
+	std::swap(e1.parent,e2.parent);
 }
 
-Expr& Expr::operator = (Expr other){
-	swap(*this,other);
+Expr& Expr::operator = (const Expr &other){
+	Expr temp(other);
+	swap(*this,temp);
 	return *this;
 }
 
-bool Expr::operator == (const Expr& e1, const Expr& e2){
-	if(e1.symbol==e2.symbol){
-		return e1.data==e2.data;
+bool Expr::operator == (const Expr& e){
+	if(symbol==e.symbol){
+		return *data == *(e.data);
 	}else{
 		return false;
 	}
