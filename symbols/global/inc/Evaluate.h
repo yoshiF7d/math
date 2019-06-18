@@ -3,5 +3,6 @@
 class Evaluate : public Symbol{
 public :
 	Evaluate();
-	Expr* function(Expr *expr) override;
+	Expr* function(Expr *expr) override;	void printdoc() override;
+
 };

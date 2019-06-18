@@ -1,0 +1,10 @@
+<NAME>SetDelayed</NAME>
+<PRECEDENCE>40</PRECEDENCE>
+<ASSOCIATIVITY>right</ASSOCIATIVITY>
+<SYMBOL>":="</SYMBOL>
+<ATTRIBUTES>HoldAll|Protected|SequenceHold</ATTRIBUTES>
+<DOC>
+lhs := rhs assigns rhs to be the delayed value of lhs.
+rhs is maintained in an unevaluated form. 
+When lhs appears, it is replaced by rhs, evaluated afresh each time.
+</DOC>

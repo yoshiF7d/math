@@ -3,5 +3,6 @@
 class Plus : public Symbol{
 public :
 	Plus();
+	void printdoc() override;
 
 };

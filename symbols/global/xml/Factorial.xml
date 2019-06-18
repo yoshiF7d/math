@@ -1,0 +1,7 @@
+<NAME>Factorial</NAME>
+<PRECEDENCE>610</PRECEDENCE>
+<ATTRIBUTES>Listable|NumericFunction|Protected|ReadProtected</ATTRIBUTES>
+<SYMBOL>"!"</SYMBOL>
+<DOC>
+n! gives the factorial of n.
+</DOC>

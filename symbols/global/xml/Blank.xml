@@ -1,0 +1,9 @@
+<NAME>Blank</NAME>
+<PRECEDENCE>730</PRECEDENCE>
+<ASSOCIATIVITY>one</ASSOCIATIVITY>
+<SYMBOL>"_"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+_ or Blank[] is a pattern object that can stand for any expression.
+_h or Blank[h] can stand for any expression with head h.
+</DOC>

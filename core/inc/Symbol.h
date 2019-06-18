@@ -34,6 +34,7 @@ class Symbol{
 	void setmark(std::string mark, int asso);
 	void print();
 	void addAttributes(Attributes attributes);
+	static Expr* parse(std::string::iterator *current);
 	virtual Expr* function(Expr *);
 	virtual void printdoc();
 	virtual std::string toString();
@@ -41,4 +42,15 @@ class Symbol{
 	virtual void deleteData(Data *data);
 	virtual bool operator == (const Symbol&);
 };
+#define KNRM  "\x1B[0m"
+#define KBLK  "\x1B[30m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT "\x1B[37m"
+#define LONGBAR128 "================================================================================================================================\n"
+#define LONGLINE128 "--------------------------------------------------------------------------------------------------------------------------------\n"
 #endif

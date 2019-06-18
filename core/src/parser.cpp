@@ -1,15 +1,6 @@
 #include <parser.h>
 #include <Symbol.h>
 #include <SymbolTable.h>
-#define KNRM  "\x1B[0m"
-#define KBLK  "\x1B[30m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT "\x1B[37m"
 
 Parser::Tokenizer::Tokenizer(){
 	Expr *last,*e;
@@ -36,26 +27,26 @@ Parser::Tokenizer::Tokenizer(){
 					for(last=this->optree;j<symbol->mark[i].length();last = e,j++){
 						for(e=last->child;e;e=e->next){
 							if(e->symbol->id == internal_Character){
-								if(getData(CharacterData,e->data,character) == symbol->mark[i][j]){
+								if(castData(CharacterData,e->data)->character == symbol->mark[i][j]){
 									goto loopend;
 								}
 							}
 						}
 						last->appendChild(e = new Expr(internal_Character));
-						getData(CharacterData,e->data,character) = symbol->mark[i][j];
+						castData(CharacterData,e->data)->character = symbol->mark[i][j];
 						  loopend:;
 					}
 					if(symbol->associativity==Associativity::bracket){
 						if(i==0){
 							last->appendChild(e = new Expr(internal_LeftBracket));
-							getData(LeftBracketData,e->data,expr) = new Expr(symbol);
+							castData(LeftBracketData,e->data)->expr = new Expr(symbol);
 						}else{
 							last->appendChild(e = new Expr(internal_RightBracket));
-							getData(RightBracketData,e->data,expr) = new Expr(symbol);
+							castData(RightBracketData,e->data)->expr = new Expr(symbol);
 						}
 					}else{
 						last->appendChild(new Expr(symbol));
-						std::cout << KCYN << symbol->toString() << KNRM << "\n";
+						//std::cout << KCYN << symbol->toString() << KNRM << "\n";
 						break;
 					}
 				}
@@ -74,6 +65,7 @@ void Parser::Tokenizer::set(std::string string){
 	this->current = this->string.begin();
 }
 
+/*
 bool Parser::Tokenizer::readint(){
 	std::string::iterator it=current;
 	if(isdigit(*it)){
@@ -132,7 +124,7 @@ Expr* Parser::Tokenizer::readnum(){
 		if(*current=='.'){current++;}
 		else{
 			e = readexp();
-			std::cout << std::string(save,current) << "\n";
+			//std::cout << std::string(save,current) << "\n";
 			switch(e){
 			  case ExpType::Plus:
 				return Integer::createExp(std::string(save,current));
@@ -154,7 +146,7 @@ Expr* Parser::Tokenizer::readnum(){
 Expr* Parser::Tokenizer::readsymbol(){
 	std::string::iterator save = current;
 	if(!isalpha(*current)){
-		if(!(*current & 0x80)){current = save; return nullptr;} /*UTF*/
+		if(!(*current & 0x80)){current = save; return nullptr;}
 	}
 	while(isalnum(*current) || (*current & 0x80)){current++;}
 	return new Expr(std::string(save,current));
@@ -190,6 +182,7 @@ Expr* Parser::Tokenizer::readstring(){
 	}
 	return new Expr(std::string(save,current));
 }
+*/
 
 Expr* Parser::Tokenizer::read(){
 	Expr *expr;
@@ -197,22 +190,15 @@ Expr* Parser::Tokenizer::read(){
 	while(isblank(*current)){current++;}
 	if(current==string.end()){return nullptr;}
 	save = current;
-	if((expr=readsymbol())){
-		std::cout << KMAG << "SYMBOL" << KNRM << "\n";
-		return expr;
-	}else if((expr=readnum())){
-		std::cout << KMAG << "NUMBER" << KNRM << "\n";
-		return expr;
-	}else if((expr=readstring())){
-		std::cout << KMAG << "STRING" << KNRM << "\n";
-		return expr;
-	}else if(optree){
-		std::cout << KMAG << "ELSE" << KNRM << "\n";
+	if((expr=Symbol::parse(&current))){return expr;}
+	if((expr=Number::parse(&current))){return expr;}
+	if((expr=String::parse(&current,string.end()))){return expr;}
+	if(optree){
 		Expr *last=optree,*e;
 	  head:
 		for(e=last->child;e;e=e->next){
 			if(e->symbol->id==internal_Character){
-				if(getData(CharacterData,e->data,character)==*current){
+				if(castData(CharacterData,e->data)->character==*current){
 					last = e;
 					current++;
 					goto head;
@@ -230,7 +216,7 @@ Expr* Parser::Tokenizer::read(){
 
 Parser::Parser(){
 	tokenizer = new Tokenizer();
-	root = previous = current = nullptr;
+	root = current = nullptr;
 	end = nullptr;
 }
 
@@ -239,7 +225,7 @@ Parser::~Parser(){}
 Parser::Parser(Tokenizer *tokenizer, Symbol *end){
 	this->tokenizer = tokenizer;
 	this->end = end;
-	root = previous = current = nullptr;
+	root = current = nullptr;
 }
 
 void Parser::finish(){
@@ -249,34 +235,61 @@ void Parser::finish(){
 
 void Parser::set(std::string string){
 	this->tokenizer->set(string);
-	this->root = previous = current = nullptr;
+	this->root = current = nullptr;
 }
 
 void Parser::push(Expr *expr){
 	Expr *dest;
+	/*
 	if(root){std::cout << "root symbol : " << root->symbol->name << "\n";}
-	if(previous){std::cout << "previous symbol : " << previous->symbol->name << "\n";}
 	if(current){std::cout << "current symbol : " << current->symbol->name << "\n";}
 	if(expr){std::cout << "symbol : " << expr->symbol->name << "\n";}
-	if(!current){setRoot(expr);return;}
-	if(expr->symbol->precedence==1000 && 
-	   expr->symbol->precedence==current->symbol->precedence
-	   ){
-	    if(expr->symbol->id==internal_Bracket){
-			current->appendChild(expr);
-			goto end;
+	*/
+	
+	if(!current){
+		setRoot(expr);
+		if(current->symbol->associativity & BINARY){
+			expr->appendChild(new Expr(global_Null));
+		}
+		return;
+	}else if(
+	   (current->symbol->associativity & BINARY) &&
+	   (expr->symbol->associativity & BINARY)
+	){
+		if(expr->symbol->id == global_Blank
+		|| expr->symbol->id == global_BlankSequence
+		|| expr->symbol->id == global_BlankNullSequence
+		){
+			pushDirect(expr->appendChild(new Expr(global_Null)));
 		}else{
-			push(new Expr(global_Times));
+			push(new Expr(global_Null));
 			push(expr);
-			return;
 		}
+		return;
 	}
-	for(dest=current;dest;dest=dest->parent){
-		if(expr->symbol->precedence
-		   >= dest->symbol->precedence){
-			break;
+	
+	if(
+		current->symbol->precedence>=670 && 
+		expr->symbol->precedence>=670 &&
+		!(current->symbol->associativity & BINARY) &&
+		!(expr->symbol->associativity & BINARY)
+	)
+	{
+		push(new Expr(global_Times));
+		push(expr);
+		return;
+	}
+	if(expr->symbol->precedence >= 670){
+		if(expr->symbol->associativity & BINARY){
+			dest = current->parent;
+		}else{
+			dest = current;
 		}
-		current = dest;
+	}else{
+		for(dest=current;dest;dest=dest->parent){
+			if(expr->symbol->precedence >= dest->symbol->precedence){break;}
+			current = dest;
+		}
 	}
 	
 	if(!dest){
@@ -287,23 +300,23 @@ void Parser::push(Expr *expr){
 	if(!AtomQ::mod(dest)){
 		switch(dest->symbol->associativity){
 		  case Associativity::left: /* a~b~c -> ~[~[a,b],c] */
-			if(root){std::cout <<KCYN << "Left"<< KNRM<<"\n";}
+			//if(root){std::cout <<KCYN << "Left"<< KNRM<<"\n";}
 			if(dest->symbol->precedence == expr->symbol->precedence){
 				if(!dest->parent){setRoot(expr->appendChild(dest));}
-				else{expr->insert(dest->parent,dest);current = expr;}
+				else{expr->insert(dest->parent,dest);}
 				goto end;
 			}
 			break;
 		  case Associativity::none: /* a~b~c -> ~[a,b,c] */
-		    if(root){std::cout <<KCYN << "none"<< KNRM<<"\n";}
+		    //if(root){std::cout <<KCYN << "none"<< KNRM<<"\n";}
 			if(dest->symbol == expr->symbol){
 				delete expr;
-				current = dest;
-				return;
+				expr = dest;
+				goto end;
 			}
 			break;
 		  case Associativity::post: /*a~b -> ~[a]*b*/
-			if(root){std::cout <<KCYN << "post"<< KNRM<<"\n";}
+			//if(root){std::cout <<KCYN << "post"<< KNRM<<"\n";}
 			if(dest==current && dest->child){
 				current = new Expr(global_Times);
 				if(!dest->parent){setRoot(current->appendChild(dest));}
@@ -312,11 +325,11 @@ void Parser::push(Expr *expr){
 				return;
 			}
 			break;
-		  case Associativity::binary: /* a~b~c -> ~[~[a,b],c]] */
-			if(root){std::cout <<KCYN << "binary"<< KNRM<<"\n";}
+		  case Associativity::one: /* a~b~c -> ~[~[a,b],c]] */
+			//if(root){std::cout <<KCYN << "binary"<< KNRM<<"\n";}
 			if(dest==current && dest->child){
 				if(dest->child->next){
-					current = new Expr(internal_Node);
+					current = new Expr(internal_Parenthesis);
 					if(!dest->parent){setRoot(current->appendChild(dest));}
 					else{current->insert(dest->parent,dest);}
 					push(expr);
@@ -325,14 +338,13 @@ void Parser::push(Expr *expr){
 			}
 			break;
 		  case Associativity::right: /* a~b~c -> ~[a,~[b,c]] */
-			if(root){std::cout <<KCYN << "right"<< KNRM<<"\n";}
+			//if(root){std::cout <<KCYN << "right"<< KNRM<<"\n";}
 		  default:
 			break;
 		}
 		expr->insert(dest,current);
 	}
   end:
-	previous = current;
 	current = expr;
 	return;
 }
@@ -340,7 +352,6 @@ void Parser::push(Expr *expr){
 void Parser::pushToRoot(Expr *expr){
 	if(!root){setRoot(expr);}
 	else{root->append(expr);}
-	previous=current;
 	current = root;
 }
 
@@ -349,12 +360,23 @@ void Parser::pushDirect(Expr *expr){
 	else{
 		current->appendChild(expr);
 	}
-	previous=current;
+	current = expr;
+}
+
+void Parser::pushBracket(Expr *expr){
+	if(!root){setRoot(expr);}
+	else{
+		Expr* dest = current->parent;
+		if(!dest){
+			setRoot(expr->prependChild(current));
+		}else{
+			expr->preinsert(dest,current);
+		}
+	}
 	current = expr;
 }
 
 void Parser::setRoot(Expr *expr){
-	previous = current;
 	root = current = expr;
 }
 
@@ -363,47 +385,44 @@ Expr* Parser::parse(){
 	while(tokenizer->current != tokenizer->string.end()){
 		expr = tokenizer->read();
 		if(expr){
+			/*
 			std::cout << "expr : " << expr->toString() << "\n";
 			if(root){std::cout << "root : " << root->toString() << "\n";}
-			if(previous){std::cout << "previous : " << previous->toString() << "\n";}
-			
+			if(current){std::cout << "current : " << current->toString() << "\n";}
+			*/
 			if(AtomQ::mod(expr)){
-				std::cout << KWHT << "atom" << KNRM << "\n";
+				//std::cout << KWHT << "atom" << KNRM << "\n";
 				push(expr);
 			}else if(expr->symbol->id == internal_LeftBracket){
-				std::cout << KWHT << "LeftBracket" << KNRM << "\n";
-				Parser parser(tokenizer,getData(RightBracketData,expr->data,expr->symbol));
+				//std::cout << KWHT << "LeftBracket" << KNRM << "\n";
+				Parser parser(tokenizer,castData(RightBracketData,expr->data)->expr->symbol);
 				expr2 = parser.parse();
 				if(expr2){
-					push(getData(LeftBracketData,expr->data,expr)->copy()->appendChild(expr2));
-				}
-				else{push(new Expr(global_Null));}
-			}else if(expr->symbol->associativity == Associativity::separator){
-				std::cout << KWHT << "Separator" << KNRM << "\n";
-				Parser parser(tokenizer,end);
-				expr = parser.parse();
-				if(expr){pushToRoot(expr);}
-				else{pushToRoot(new Expr(global_Null));}
-				break;
+					expr2 = castData(LeftBracketData,expr->data)->expr->copy()->appendChild(expr2);
+					if( expr2->symbol->id == internal_Bracket ||
+					    expr2->symbol->id == global_Part
+					){
+						pushBracket(expr2);
+					}else{
+						push(expr2);
+					}
+				}else{push(new Expr(global_Null));}
 			}else if(expr->symbol->id == internal_RightBracket){
-				std::cout << KWHT << "RightBracket" << KNRM << "\n";
-				if(end==(getData(RightBracketData,expr->data,expr))->symbol){
+				//std::cout << KWHT << "RightBracket" << KNRM << "\n";
+				if(end==(castData(RightBracketData,expr->data)->expr->symbol)){
 					break;
 				}else{
-				  std::cout << __func__ << " : bracket mismatch : " << end->mark[0] << end->mark[1] << std::endl;
+				  if(end){
+					std::cout << __func__ << " : bracket mismatch : " << end->mark[0] << " " << end->mark[1] << std::endl;
+				  }else{
+					std::cout << __func__ << " : bracket mismatch : " << expr->symbol->mark[1] << "\n";
+				  }
 					/*ignore*/
 					break;
 				}
 			}else{
-				if(!root ||
-					(previous && (
-						previous->symbol->associativity == Associativity::left ||
-						previous->symbol->associativity == Associativity::right ||
-						previous->symbol->associativity == Associativity::none || 
-						previous->symbol->associativity == Associativity::binary
-					))
-				){
-					std::cout << KWHT << "prefer pre" << KNRM << "\n";
+				if(!root || (current->symbol->associativity & BINARY)){
+					//std::cout << KWHT << "prefer pre" << KNRM << "\n";
 					for(Expr *e=expr;e;e=e->previous){
 						if(e->symbol->id != internal_Character 
 							&& e->symbol->associativity == Associativity::pre){
@@ -411,7 +430,8 @@ Expr* Parser::parse(){
 						}
 					}
 				}else{
-					std::cout << KWHT << "prefer not pre" << KNRM << "\n";
+					//std::cout << KWHT << "prefer not pre" << KNRM << "\n";
+					//TreeForm::mod(expr->parent);
 					for(Expr *e=expr;e;e=e->previous){
 						if(e->symbol->id != internal_Character && 
 							e->symbol->associativity!=Associativity::pre){
@@ -425,7 +445,10 @@ Expr* Parser::parse(){
 			break;
 		}
 	}
-	if(!end){root = removeBrackets(root);}
+	if(current->symbol->associativity & BINARY){
+		pushDirect(new Expr(global_Null));
+	}
+	if(!end){root = preEvaluate(root);}
 	return root;
 }
 
@@ -439,22 +462,19 @@ void printexpr(Expr *expr){
 
 void Parser::print(){
 	std::cout << "root : "; printexpr(root);
-	std::cout << "previous : "; printexpr(previous);
 	std::cout << "current : "; printexpr(current);
 	if(end){std::cout << "end : "; end->toString();}
 }
 
-Expr* Parser::removeBrackets(Expr* expr){
+Expr* Parser::preEvaluate(Expr* expr){
 	if(expr){
 		Expr* e;
-		for(e=expr->child;e;e=e->next){e=removeBrackets(e);}
+		for(e=expr->child;e;e=e->next){e=preEvaluate(e);}
 		switch(expr->symbol->id){
 		  case internal_Parenthesis:
 		  case internal_Bracket:
-			e = expr->replace(expr->child);
-			delete expr;
-			expr = e;
 			break;
+		  case internal_Comma:
 		  default:
 			break;
 		}

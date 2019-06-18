@@ -3,5 +3,6 @@
 class PreIncrement : public Symbol{
 public :
 	PreIncrement();
+	void printdoc() override;
 
 };

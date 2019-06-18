@@ -1,0 +1,10 @@
+<NAME>And</NAME>
+<PRECEDENCE>215</PRECEDENCE>
+<ATTRIBUTES>Flat|HoldAll|OneIdentity|Protected</ATTRIBUTES>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SYMBOL>"&&"</SYMBOL>
+<DOC>
+e1 && e2 && ... is the logical AND function.
+It evaluates its arguments in order, giving False immediately 
+if any of them are False, and True if they are all True.
+</DOC>

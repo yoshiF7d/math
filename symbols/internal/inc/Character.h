@@ -4,7 +4,7 @@ class Character : public Symbol{
 public :
 	Character();
 
-Data* createData() override;
+	Data* createData() override;
 
 };
 struct CharacterData : Data{

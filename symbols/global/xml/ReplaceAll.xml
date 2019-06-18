@@ -1,0 +1,8 @@
+<NAME>ReplaceAll</NAME>
+<PRECEDENCE>110</PRECEDENCE>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SYMBOL>"/."</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+expr /. rules applies a rule or list of rules in an attempt to transform each subpart of an expression expr.
+</DOC>

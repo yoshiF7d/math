@@ -2,18 +2,21 @@
 #include <SymbolTable.h>
 Integer::Integer() : Symbol("Integer","",global_Integer,1000,Protected,0,"",""){}
 Expr *Integer::create(std::string string){
-	Expr *expr = new Expr(global_Integer);
+	Expr *expr = new Expr();
+	expr->symbol = SymbolTable::get(global_Integer);
 	expr->data = new IntegerData(string);
 	return expr;
 }
 Expr *Integer::create(int integer){
-	Expr *expr = new Expr(global_Integer);
+	Expr *expr = new Expr();
+	expr->symbol = SymbolTable::get(global_Integer);
 	expr->data = new IntegerData(integer);
 	return expr;
 }
-Expr *Integer::createExp(std::string string){
-	Expr *expr = new Expr(global_Integer);
-	expr->data = IntegerData::IntegerDataExp(string);
+Expr *Integer::create(int integer,int e){
+	Expr *expr = new Expr();
+	expr->symbol = SymbolTable::get(global_Integer);
+	expr->data = new IntegerData(integer,e);
 	return expr;
 }
 Data* Integer::createData(){return new IntegerData ();}
@@ -34,30 +37,13 @@ IntegerData::IntegerData(long integer){
 	this->integer = integer;
 }
 
-IntegerData* IntegerData::IntegerDataExp(std::string string){
-	int sav,isav;
-	int i,e;
-	
-	IntegerData *data = new IntegerData();
-	
-	for(i=0;i<string.size();i++){
-		if(string[i]=='e' || string[i]=='E'){
-			isav=i; sav=string[i]; string[i]='\0';
-			i++;
-			if(string[i]=='+'){i++;}
-			break;
-		}
-	}
-	if(i<string.size()){e=std::stoi(string.substr(i));}
-	else{e=1;}
+IntegerData::IntegerData(int integer, int e){
 	#ifdef mpz
-		mpz_ui_pow_ui(data->integer.get_mpz_t(),10,e);
-		data->integer *= mpz_class(string);
+		mpz_ui_pow_ui(this->integer.get_mpz_t(),10,e);
+		this->integer *= mpz_class(integer);
 	#else
-		data->integer = std::stoi(string)*pow(10,e);
+		this->integer = integer*pow(10,e);
 	#endif
-	string[i] = sav;
-	return data;
 }
 
 std::string IntegerData::toString(){
@@ -69,3 +55,6 @@ std::string IntegerData::toString(){
 }
 IntegerData::~IntegerData(){}
 
+void Integer::printdoc(){printf(
+	"                          Integer is the head used for integers.\n"
+);}

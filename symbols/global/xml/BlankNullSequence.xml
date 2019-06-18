@@ -1,0 +1,9 @@
+<NAME>BlankNullSequence</NAME>
+<PRECEDENCE>730</PRECEDENCE>
+<ASSOCIATIVITY>one</ASSOCIATIVITY>
+<SYMBOL>"___"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+___(three _ characters) or BlankNullSequence[] is a pattern object that can stand for any squence of zero or more expressions.
+___h or BlankNullSequence[h] can stand for any sequence of expressions, all of which have head h.
+</DOC>

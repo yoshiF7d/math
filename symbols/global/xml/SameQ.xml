@@ -1,0 +1,8 @@
+<NAME>SameQ</NAME>
+<PRECEDENCE>290</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<ASSOCIATIVITY>none</ASSOCIATIVITY>
+<SYMBOL>"==="</SYMBOL>
+<DOC>
+lhs === rhs yields True if the expression lhs is identical to rhs, and yields False otherwise.
+</DOC>

@@ -1,7 +1,7 @@
 <NAME>Power</NAME>
 <PRECEDENCE>590</PRECEDENCE>
 <ASSOCIATIVITY>right</ASSOCIATIVITY>
-<SIGN>"^"</SIGN>
+<SYMBOL>"^"</SYMBOL>
 <ATTRIBUTES>Listable | NumericFunction | OneIdentity | Protected</ATTRIBUTES>
 <DOC>
 x^y gives x to the power y.

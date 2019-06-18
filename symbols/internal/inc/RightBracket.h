@@ -4,7 +4,7 @@ class RightBracket : public Symbol{
 public :
 	RightBracket();
 
-Data* createData() override;
+	Data* createData() override;
 
 };
 struct RightBracketData : Data{

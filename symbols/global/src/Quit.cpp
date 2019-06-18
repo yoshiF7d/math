@@ -5,3 +5,6 @@ Expr* Quit::function(Expr* expr){
 	expr->deleteRoot();
 	return nullptr;
 }
+void Quit::printdoc(){printf(
+	"                          Quit this program.\n"
+);}

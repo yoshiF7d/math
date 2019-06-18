@@ -1,0 +1,8 @@
+<NAME>LessEqual</NAME>
+<PRECEDENCE>290</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SYMBOL>"<"</SYMBOL>
+<DOC>
+x < y yields True if x is determined to be less than y.
+x_1 < x_2 < x_3 yields True if the x_i form a strictly increasing sequence.
+</DOC>

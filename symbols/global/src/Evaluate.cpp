@@ -69,3 +69,6 @@ Expr* Evaluate::function(Expr *expr){
 	}
 	return expr;
 }
+void Evaluate::printdoc(){printf(
+	"                          Evaluate[expr] evaluates expression expr.\n"
+);}

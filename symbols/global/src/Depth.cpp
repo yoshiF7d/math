@@ -18,3 +18,6 @@ int Depth::mod(Expr *expr){
 	depth += max;
 	return depth;
 }
+void Depth::printdoc(){printf(
+	"                          Depth[expr] gives the maximum number of indices needed to specify any part of expr, plus 1.\n"
+);}

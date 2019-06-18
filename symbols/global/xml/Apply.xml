@@ -1,0 +1,10 @@
+<NAME>Apply</NAME>
+<PRECEDENCE>620</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<ASSOCIATIVITY>right</ASSOCIATIVITY>
+<SYMBOL>"@@"</SYMBOL>
+<DOC>
+Apply[f,expr] or f@@expr replaces the head of expr by f.
+Apply[f,expr,{1}] or f@@@expr replaces heads at level 1 of expr by f.
+Apply[f,expr,levelspec] replaces heads in parts of expr specified by levelspec.
+</DOC>

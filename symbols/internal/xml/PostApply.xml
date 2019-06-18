@@ -1,0 +1,8 @@
+<NAME>PostApply</NAME>
+<PRECEDENCE>640</PRECEDENCE>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SYMBOL>"//"</SYMBOL>
+<ATTRIBUTES>Protected|HoldAll</ATTRIBUTES>
+<DOC>
+PostApply[expr,f] or expr//f evaluates to f[expr].
+</DOC>

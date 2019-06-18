@@ -1,0 +1,10 @@
+<NAME>Or</NAME>
+<PRECEDENCE>215</PRECEDENCE>
+<ATTRIBUTES>Flat|HoldAll|OneIdentity|Protected</ATTRIBUTES>
+<ASSOCIATIVITY>left</ASSOCIATIVITY>
+<SYMBOL>"||"</SYMBOL>
+<DOC>
+e1 || e2 || ... is the logical OR function.
+It evaluates its arguments in order, giving True immediately 
+if any of them are True, and False if they are all False.
+</DOC>

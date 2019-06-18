@@ -3,5 +3,6 @@
 class Null : public Symbol{
 public :
 	Null();
+	void printdoc() override;
 
 };

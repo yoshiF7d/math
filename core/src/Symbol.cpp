@@ -42,17 +42,9 @@ void Symbol::setmark(std::string mark, int asso){
 	}
 }
 
-#define KNRM  "\x1B[0m"
-#define KCYN  "\x1B[36m"
-#define KRED  "\x1B[31m"
-#define KYEL  "\x1B[33m"
-#define KWHT "\x1B[37m"
-#define LONGBAR128 "================================================================================================================================\n"
-#define LONGLINE128 "--------------------------------------------------------------------------------------------------------------------------------\n"
-
 void Symbol::print(){
 	Expr *e;
-	std::cout << std::setw(26) << std::left << KCYN << this->name << " " << this->mark[0] << this->mark[1] << KNRM;
+	std::cout << KCYN << this->name << " " << this->mark[0] << this->mark[1] << KNRM;
 	if(this->alias){
 		std::cout << KRED << "Alias : " << KYEL;
 		for(e=this->alias->child;e;e=e->next){
@@ -63,11 +55,22 @@ void Symbol::print(){
 	}
 	std::cout << '\n';
 	this->printdoc();
-	std::cout << KWHT << LONGLINE128 << KNRM << '\n';
+	std::cout << KWHT << LONGLINE128 << KNRM;
 }
 
 void Symbol::addAttributes(Attributes attributes){
 	this->attributes = (Attributes) (this->attributes | attributes);
+}
+
+Expr* Symbol::parse(std::string::iterator *current){
+	std::string::iterator save,it;
+	it = save = *current;
+	if(!isalpha(*it)){
+		if(!(*it & 0x80)){*current = save; return nullptr;} /*UTF*/
+	}
+	while(isalnum(*it) || (*it & 0x80)){it++;}
+	*current = it;
+	return new Expr(std::string(save,it));
 }
 
 Expr* Symbol::function(Expr *e){return e;}

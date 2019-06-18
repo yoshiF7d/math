@@ -20,6 +20,7 @@ class Expr{
 	Symbol *symbol;
 	Data *data;
 	
+	Expr();
 	Expr(int id);
 	Expr(std::string str);
 	Expr(Symbol *symbol);
@@ -40,7 +41,9 @@ class Expr{
     Expr* appendChild(Expr *expr);
 	Expr* prependChild(Expr *expr);
 	Expr* insert(Expr *parent, Expr *child);
+	Expr* preinsert(Expr *parent, Expr *child);
 	Expr* replace(Expr *expr);
+	Expr* isolate();
 	Expr* getChild(int index);
 	friend void swap(Expr& e1,Expr& e2);
 

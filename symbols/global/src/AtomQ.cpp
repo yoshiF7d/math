@@ -22,3 +22,6 @@ bool AtomQ::mod(Expr *expr){
 		return false;
 	}
 }
+void AtomQ::printdoc(){printf(
+	"                          AtomQ[expr] yields True if expr is an expression which cannot be divided into subexpressions, and yields False otherwise.\n"
+);}

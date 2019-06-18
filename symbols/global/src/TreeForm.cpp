@@ -63,3 +63,6 @@ Expr* TreeForm::function(Expr* expr){
 	mod(expr->child);
 	return expr;
 }
+void TreeForm::printdoc(){printf(
+	"                          TreeForm[expr] displays expr as a tree with different levels at different depths.\n"
+);}

@@ -5,8 +5,9 @@ public :
 	Integer();
 	static Expr *create(std::string string);
 	static Expr *create(int integer);
-	static Expr *createExp(std::string string);
-Data* createData() override;
+	static Expr *create(int integer,int e);	void printdoc() override;
+
+	Data* createData() override;
 
 };
 struct IntegerData : Data{
@@ -19,7 +20,7 @@ struct IntegerData : Data{
 	IntegerData(std::string string);
 	IntegerData(int integer);
 	IntegerData(long integer);
-	static IntegerData* IntegerDataExp(std::string string);
+	IntegerData(int integer, int e);
 	std::string toString() override;
 	~IntegerData();
 };

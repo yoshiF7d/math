@@ -3,5 +3,6 @@
 class All : public Symbol{
 public :
 	All();
+	void printdoc() override;
 
 };

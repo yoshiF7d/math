@@ -1,7 +1,7 @@
 <NAME>Function</NAME>
 <PRECEDENCE>90</PRECEDENCE>
 <ASSOCIATIVITY>post</ASSOCIATIVITY>
-<SIGN>"&"</SIGN>
+<SYMBOL>"&"</SYMBOL>
 <ATTRIBUTES>HoldAll|Protected</ATTRIBUTES>
 <DOC>
 Lambda[body] or body& is a pure function. The formal parameters are # (or #1), #2, etc.

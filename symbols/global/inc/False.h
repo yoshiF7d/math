@@ -3,5 +3,6 @@
 class False : public Symbol{
 public :
 	False();
+	void printdoc() override;
 
 };

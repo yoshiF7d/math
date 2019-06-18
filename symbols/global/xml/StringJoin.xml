@@ -1,0 +1,9 @@
+<NAME>StringJoin</NAME>
+<PRECEDENCE>600</PRECEDENCE>
+<ASSOCIATIVITY>none</ASSOCIATIVITY>
+<SYMBOL>"<>"</SYMBOL>
+<ATTRIBUTES>Flat|OneIdentity|Protected</ATTRIBUTES>
+<DOC>
+"s_1" <> "s_2" <> ..., StringJoin["s_1","s_2",...], or StringJoin[{"s_1","s_2",...}]
+yields a string consisting of a concatenation of the s_i
+</DOC>

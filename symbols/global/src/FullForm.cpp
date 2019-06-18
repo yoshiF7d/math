@@ -21,3 +21,6 @@ Expr* FullForm::function(Expr* expr){
 	std::cout << std::endl;
 	return expr;
 }
+void FullForm::printdoc(){printf(
+	"                          FullForm[expr] prints as the full form of expr, with no special syntax.\n"
+);}

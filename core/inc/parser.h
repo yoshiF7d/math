@@ -26,14 +26,14 @@ class Parser{
 	};
 	Tokenizer *tokenizer;
 	Expr *root;
-	Expr *previous;
 	Expr *current;
 	Symbol *end;
 	void push(Expr *expr);
 	void pushToRoot(Expr *expr);
 	void pushDirect(Expr *expr);
+	void pushBracket(Expr *expr);
 	void setRoot(Expr *expr);
-	Expr* removeBrackets(Expr* expr);
+	Expr* preEvaluate(Expr* expr);
   public:
 	Parser();
 	Parser(Tokenizer *tokenizer,Symbol *end);

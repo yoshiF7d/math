@@ -1,9 +1,8 @@
 <NAME>Equal</NAME>
 <PRECEDENCE>290</PRECEDENCE>
 <ASSOCIATIVITY>none</ASSOCIATIVITY>
-<SYBOL>"=="</SYBOL>
+<SYMBOL>"=="</SYMBOL>
 <ATTRIBUTES>Protected</ATTRIBUTES>
-</SOURCE>
 <DOC>
-SameQ[expr] yields yields True if the expression lhs is identical to rhs, and yields False otherwise.
+lhs == rhs returns True if lhs and rhs are identical.
 </DOC>

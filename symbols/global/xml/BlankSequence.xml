@@ -1,0 +1,9 @@
+<NAME>BlankSequence</NAME>
+<PRECEDENCE>730</PRECEDENCE>
+<ASSOCIATIVITY>one</ASSOCIATIVITY>
+<SYMBOL>"__"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+__(two _ characters) or BlankSequence[] is a pattern object that can stand for any squence of one or more expressions.
+__h or BlankSequence[h] can stand for any sequence of one or more expressions, all of which have head h.
+</DOC>

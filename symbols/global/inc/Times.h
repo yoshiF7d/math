@@ -3,5 +3,6 @@
 class Times : public Symbol{
 public :
 	Times();
+	void printdoc() override;
 
 };

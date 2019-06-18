@@ -3,8 +3,10 @@
 class String : public Symbol{
 public :
 	String();
-	static Expr *create(std::string string);
-Data* createData() override;
+	static Expr *parse(std::string::iterator *current,std::string::iterator end);
+	static Expr *create(std::string string);	void printdoc() override;
+
+	Data* createData() override;
 
 };
 struct StringData : Data{
@@ -12,5 +14,6 @@ struct StringData : Data{
 	StringData();
 	StringData(std::string);
 	~StringData();
+	std::string toString() override;
 };
 

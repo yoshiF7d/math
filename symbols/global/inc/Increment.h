@@ -3,5 +3,6 @@
 class Increment : public Symbol{
 public :
 	Increment();
+	void printdoc() override;
 
 };

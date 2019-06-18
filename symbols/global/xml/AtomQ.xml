@@ -2,7 +2,7 @@
 <PRECEDENCE>670</PRECEDENCE>
 <ATTRIBUTES>Protected</ATTRIBUTES>
 <SOURCE>
-Expr *function(Expr *expr){
+Expr *function(Expr *expr) override{
 	if(!$00){return expr;}
 	if(mod($00)){
 		expr->symbol = SymbolTable::get(global_True);

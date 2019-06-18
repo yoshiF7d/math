@@ -20,6 +20,7 @@ class SymbolTable{
 	static void finish();
 	static Symbol* get(int);
 	static Symbol* get(std::string);
+	static void print(int);
 	static void print();
 	static void append(Symbol);
 };

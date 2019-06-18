@@ -1,0 +1,9 @@
+<NAME>Greater</NAME>
+<PRECEDENCE>290</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<ASSOCIATIVITY>none</ASSOCIATIVITY>
+<SYMBOL>">"</SYMBOL>
+<DOC>
+x > y yields True if x is determined to be greater than y.
+x_1 > x_2 > x_3 yields True if the x_i form a strictly decreasing sequence.
+</DOC>

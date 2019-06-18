@@ -812,7 +812,11 @@ void incwrite(char *incfile, List ss, List ff){
 		fprintf(fp,"\t%s%s;",finfo->rtntype,finfo->name);
 		if(f->next){fprintf(fp,"\n");}
 	}
-	if(info->datainc){fprintf(fp,"\nData* createData() override;\n");}
+	if(info->doc){
+		fprintf(fp,"\tvoid printdoc() override;\n");
+	}
+
+	if(info->datainc){fprintf(fp,"\n\tData* createData() override;\n");}
 	fprintf(fp,"\n};\n");
 	if(info->datainc){
 		fprintf(fp,"%s\n",info->datainc);
@@ -851,6 +855,7 @@ void srcwrite(char *srcfile, List ss, List ff){
 	List f;
 	Info info = ss->content;
 	FuncInfo finfo;
+	char *p,*buf;
 	fprintf(fp,"#include <SymbolList.h>\n");
 	fprintf(fp,"#include <SymbolTable.h>\n");
 	fprintf(fp,"%s::%s() : %s{}\n",info->name,info->name,info->sfunc);
@@ -871,6 +876,21 @@ void srcwrite(char *srcfile, List ss, List ff){
 	if(info->datasrc){
 		fprintf(fp,"Data* %s::createData(){return new %s();}\n",info->name,extract_struct(info->datainc));
 		fprintf(fp,"%s\n",info->datasrc);
+	}
+	if(info->doc){
+		fprintf(fp,"void %s::printdoc(){printf(\n",info->name);
+		buf = strtok(info->doc,"\n");
+		while(buf){
+			fprintf(fp,"\t\"%s",spaces);
+			for(p=buf;*p;p++){
+				if(*p == '\"'){fputc('\\',fp);}
+				if(*p == '%'){fputc('%',fp);}
+				fputc(*p,fp);
+			}
+			fprintf(fp,"\\n\"\n");
+			buf = strtok(NULL,"\n");
+		}
+		fprintf(fp,");}\n");
 	}
 	fclose(fp);
 }
@@ -993,11 +1013,12 @@ void listwrite(char *file,List list){
 	}
 	fprintf(fp,"#define UNFOLD(SYMBOL,TABLE,NAME) NAME##_##SYMBOL,\n");
 	fprintf(fp,"enum ID{\n");
+	fprintf(fp,"\tglobal_Symbol=0,\n");
 	for(c=list;c;c=c->next){
 		context = c->content;
 		fprintf(fp,"\tCONTEXT_%s(UNFOLD,TABLE)\n",context->capital);
 	}
-	fprintf(fp,"end,\n");
+	fprintf(fp,"\tend\n");
 	fprintf(fp,"};\n");
 	fprintf(fp,"#undef UNFOLD\n\n");
 	/*write make context*/

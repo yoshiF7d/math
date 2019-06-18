@@ -1,0 +1,8 @@
+<NAME>CompoundExpression</NAME>
+<PRECEDENCE>10</PRECEDENCE>
+<ASSOCIATIVITY>none</ASSOCIATIVITY>
+<SYMBOL>";"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+expr_1;expr_2;... evaluates the expr_i in turn, giving the last one as the result.
+</DOC>

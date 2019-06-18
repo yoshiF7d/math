@@ -2,16 +2,11 @@
 <PRECEDENCE>1000</PRECEDENCE>
 <ATTRIBUTES>Protected</ATTRIBUTES>
 <SOURCE>
-double getDouble(Expr expr){
-	return 0;
-}
 
-int sign(Expr expr){
-	return 0;
-}
-static Expr *create(std::string string){
-	Expr *expr = new Expr(global_Real);
-	getData(RealData,expr->data,real) = strtold(string.c_str(),NULL);
+static Expr* create(std::string string){
+	Expr *expr = new Expr();
+	expr->symbol = SymbolTable::get(global_Real);
+	expr->data = new RealData(string);
 	return expr;
 }
 </SOURCE>
@@ -25,9 +20,37 @@ struct RealData : Data{
 	#else
 		double real;
 	#endif
+	RealData();
+	RealData(std::string string);
+	RealData(double real);
 	~RealData();
+	void set(std::string string);
+	void set(double real);
+	std::string toString() override;
 };
 </DATAINC>
 <DATASRC>
+RealData::RealData(){this->set(0);}
+RealData::RealData(std::string string){this->set(string);}
 RealData::~RealData(){};
+void RealData::set(std::string string){
+	#ifdef mpz
+		this->real = string;
+	#else
+		this->real = std::stold(string);
+	#endif
+}
+void RealData::set(double real){this->real = real;} 
+std::string RealData::toString(){
+	#ifdef mpz
+		return this->real.get_str();
+	#else
+		size_t needed = snprintf(NULL,0,"%g",this->real);
+		char *buf = (char*)malloc(needed+1);
+		snprintf(buf,needed+1,"%g",this->real);
+		std::string string = buf;
+		free(buf);
+		return string;
+	#endif
+}
 </DATASRC>

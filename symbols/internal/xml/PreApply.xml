@@ -1,0 +1,8 @@
+<NAME>PreApply</NAME>
+<PRECEDENCE>640</PRECEDENCE>
+<ASSOCIATIVITY>pre</ASSOCIATIVITY>
+<SYMBOL>"@"</SYMBOL>
+<ATTRIBUTES>Protected|HoldAll</ATTRIBUTES>
+<DOC>
+PreApply[expr,f] or f@expr evaluates to f[expr].
+</DOC>

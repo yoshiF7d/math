@@ -1,0 +1,8 @@
+<NAME>RuleDelayed</NAME>
+<PRECEDENCE>120</PRECEDENCE>
+<ASSOCIATIVITY>right</ASSOCIATIVITY>
+<SYMBOL>":>"</SYMBOL>
+<ATTRIBUTES>HoldRest|Protected|SequenceHold</ATTRIBUTES>
+<DOC>
+lhs:>rhs represents a rule that transforms lhs to rhs, evaluating rhs only after the rule is used.
+</DOC>

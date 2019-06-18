@@ -3,6 +3,15 @@
 #include <Symbol.h>
 #include <SymbolTable.h>
 
+Expr::Expr(){
+	symbol=nullptr;
+	data=nullptr;
+	next=nullptr;
+	previous=nullptr;
+	child=nullptr;
+	parent=nullptr;
+}
+
 Expr::Expr(int id){
 	symbol = SymbolTable::get(id);
 	data = symbol->createData();
@@ -10,13 +19,13 @@ Expr::Expr(int id){
 	previous=nullptr;
 	child=nullptr;
 	parent=nullptr;
-	printf("Expr_id\t");
-	printf("%x\t",this);
-	std::cout << symbol->name << "\n";
+	//printf("Expr_id\t");
+	//printf("%x\t",this);
+	//std::cout << symbol->name << "\n";
 }
 
 Expr::Expr(std::string string){
-	printf("Expr_string\n");
+	//printf("Expr_string\n");
 	symbol = SymbolTable::get(string);
 	data = symbol->createData();
 	next=nullptr;
@@ -32,9 +41,9 @@ Expr::Expr(Symbol *symbol){
 	previous=nullptr;
 	child=nullptr;
 	parent=nullptr;
-	printf("Expr_symbol\t");
-	printf("%x\t",this);
-	std::cout << symbol->name << "\n";
+	//printf("Expr_symbol\t");
+	//printf("%x\t",this);
+	//std::cout << symbol->name << "\n";
 }
 
 Expr::Expr(const Expr& expr){
@@ -44,15 +53,15 @@ Expr::Expr(const Expr& expr){
 	previous=nullptr;
 	child=nullptr;
 	parent=nullptr;
-	printf("Expr_copy\t");
-	printf("%x\t",this);
-	std::cout << symbol->name << "\n";
+	//printf("Expr_copy\t");
+	//printf("%x\t",this);
+	//std::cout << symbol->name << "\n";
 }
 
 Expr::~Expr(){
-	printf("~Expr\t",this);
-	printf("%x\t",this);
-	std::cout << symbol->name << "\n";
+	//printf("~Expr\t",this);
+	//printf("%x\t",this);
+	//std::cout << symbol->name << "\n";
 	symbol->deleteData(data);
 }
 
@@ -161,8 +170,29 @@ Expr* Expr::insert(Expr *p, Expr *c){
 		exit(1);
 	}
 	c->replace(this);
-	c->next = c->previous = nullptr;
+	c->isolate();
 	this->appendChild(c);
+	return p;
+}
+
+Expr* Expr::preinsert(Expr *p, Expr *c){
+	if(!p){
+		return this->prependChild(c);
+	}else if(!c || p==c){
+		return p->prependChild(this);
+	}else if(c->parent != p){
+		std::cout << __func__ << ": "; 
+		if(p){std::cout << p->toString();
+		}else{std::cout << "null";}
+		std::cout << " is not a parent of ";
+		if(c){std::cout << c->toString();
+		}else{std::cout << "null";}
+		std::cout << "\n";
+		exit(1);
+	}
+	c->replace(this);
+	c->isolate();
+	this->prependChild(c);
 	return p;
 }
 
@@ -187,6 +217,11 @@ Expr* Expr::replace(Expr *expr){
 		if(expr!=next){next->previous=expr;}
 	}
 	return expr;
+}
+
+Expr* Expr::isolate(){
+	this->parent = this->previous = this->next = nullptr;
+	return this;
 }
 
 Expr* Expr::getChild(int index){

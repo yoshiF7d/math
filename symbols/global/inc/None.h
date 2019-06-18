@@ -3,5 +3,6 @@
 class None : public Symbol{
 public :
 	None();
+	void printdoc() override;
 
 };

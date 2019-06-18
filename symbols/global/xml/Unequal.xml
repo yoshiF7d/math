@@ -1,0 +1,8 @@
+<NAME>Unequal</NAME>
+<PRECEDENCE>290</PRECEDENCE>
+<ASSOCIATIVITY>none</ASSOCIATIVITY>
+<SYMBOL>"!="</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+lhs != rhs returns False if lhs and rhs are identical.
+</DOC>

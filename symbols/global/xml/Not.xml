@@ -1,0 +1,7 @@
+<NAME>Not</NAME>
+<PRECEDENCE>230</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SYMBOL>"!"</SYMBOL>
+<DOC>
+!expr is the logical not function. It gives False if expr is True, and True if it is False.
+</DOC>

@@ -1,0 +1,20 @@
+<NAME>Help</NAME>
+<PRECEDENCE>1</PRECEDENCE>
+<ASSOCIATIVITY>post</ASSOCIATIVITY>
+<SYMBOL>"?"</SYMBOL>
+<ATTRIBUTES>Locked|Protected|HoldAll</ATTRIBUTES>
+<SOURCE>
+Expr *function(Expr *expr) override{
+	if($00){
+		SymbolTable::print($00->symbol->id);
+	}else{
+		SymbolTable::print();
+	}
+	return expr;
+}
+</SOURCE>
+<DOC>
+Help shows informations about all symbols in eqsolv3.
+?symbol or Help[symbol] shows information about a symbol.
+Help["Context`"] shows informations in the specified context.
+</DOC>
