@@ -1,7 +1,7 @@
 #include <SymbolList.h>
 #include <SymbolTable.h>
 Quit::Quit() : Symbol("Quit","",global_Quit,670,Locked|Protected,0,"",""){}
-Expr* Quit::function(Expr* expr){
+Expr* Quit::evaluate(Expr* expr){
 	expr->deleteRoot();
 	return nullptr;
 }

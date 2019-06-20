@@ -3,5 +3,5 @@
 class Bracket : public Symbol{
 public :
 	Bracket();
-
+	Expr* preEvaluate(Expr* expr) override;
 };

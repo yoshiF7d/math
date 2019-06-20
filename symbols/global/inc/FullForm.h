@@ -4,6 +4,6 @@ class FullForm : public Symbol{
 public :
 	FullForm();
 	static Expr* mod(Expr* expr);
-	Expr* function(Expr* expr) override;	void printdoc() override;
+	Expr* evaluate(Expr* expr) override;	void printdoc() override;
 
 };

@@ -200,6 +200,44 @@ Expr* Expr::replace(Expr *expr){
 	Expr* previous = nullptr;
 	Expr* next = nullptr;
 	Expr* parent = nullptr;
+	Expr* tail = nullptr;
+	
+	parent = this->parent;
+	if(parent){
+		for(Expr* e=parent->child;e;e=e->next){
+			if(e==this){
+				previous = this->previous;
+				next = this->next;
+				break;
+			}
+		}
+	}
+	
+	for(Expr* e=expr;e;e=e->next){
+		e->parent = parent;
+		tail=e;
+	}
+	
+	if(tail!=next){tail->next = next;}
+	if(expr!=previous){expr->previous = previous;}
+	if(expr!=parent){expr->parent = parent;}
+	
+	if(previous){
+		if(expr!=previous){previous->next = expr;}
+	}else{
+		if(parent && expr!=parent){parent->child = expr;}
+	}
+	if(next){
+		if(tail!=next){next->previous = tail;}
+	}
+	this->isolate();
+	return expr;
+}
+/*
+Expr* Expr::replace(Expr *expr){
+	Expr* previous = nullptr;
+	Expr* next = nullptr;
+	Expr* parent = nullptr;
 	
 	parent = this->parent;
 	previous = this->previous;
@@ -216,8 +254,47 @@ Expr* Expr::replace(Expr *expr){
 	if(next){
 		if(expr!=next){next->previous=expr;}
 	}
+	this->isolate();
 	return expr;
 }
+
+Expr* Expr::replacelist(Expr *list){
+	Expr* previous = nullptr;
+	Expr* next = nullptr;
+	Expr* parent = nullptr;
+	Expr* tail = nullptr;
+	
+	parent = this->parent;
+	if(parent){
+		for(Expr* e=parent->child;e;e=e->next){
+			if(e==this){
+				previous = this->previous;
+				next = this->next;
+				break;
+			}
+		}
+	}
+	
+	for(Expr* e=list;e;e=e->next){
+		e->parent = parent;
+		tail=e;
+	}
+	
+	if(tail!=next){tail->next = next;}
+	if(list!=previous){list->previous = previous;}
+	if(list!=parent){list->parent = parent;}
+	
+	if(previous){
+		if(list!=previous){previous->next = list;}
+	}else{
+		if(parent && list!=parent){parent->child = list;}
+	}
+	if(next){
+		if(tail!=next){next->previous = tail;}
+	}
+	return list;
+}
+*/
 
 Expr* Expr::isolate(){
 	this->parent = this->previous = this->next = nullptr;

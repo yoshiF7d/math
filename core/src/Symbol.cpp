@@ -73,7 +73,8 @@ Expr* Symbol::parse(std::string::iterator *current){
 	return new Expr(std::string(save,it));
 }
 
-Expr* Symbol::function(Expr *e){return e;}
+Expr* Symbol::evaluate(Expr *e){return e;}
+Expr* Symbol::preEvaluate(Expr *e){return e;}
 void Symbol::printdoc(){}
 std::string Symbol::toString(){return this->name;}
 Data* Symbol::createData(){return nullptr;}

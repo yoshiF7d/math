@@ -1,7 +1,7 @@
 #include <SymbolList.h>
 #include <SymbolTable.h>
 AtomQ::AtomQ() : Symbol("AtomQ","",global_AtomQ,670,Protected,0,"",""){}
-Expr *AtomQ::function(Expr *expr){
+Expr *AtomQ::evaluate(Expr *expr){
 	if(!(expr->child)){return expr;}
 	if(mod((expr->child))){
 		expr->symbol = SymbolTable::get(global_True);

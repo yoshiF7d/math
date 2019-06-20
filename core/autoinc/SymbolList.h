@@ -51,6 +51,7 @@
 #include "../../symbols/global/inc/SameQ.h"
 #include "../../symbols/global/inc/Set.h"
 #include "../../symbols/global/inc/SetDelayed.h"
+#include "../../symbols/global/inc/ShowOperators.h"
 #include "../../symbols/global/inc/Slot.h"
 #include "../../symbols/global/inc/Span.h"
 #include "../../symbols/global/inc/String.h"
@@ -122,6 +123,7 @@ UNFOLD(RuleDelayed,TABLE,global)\
 UNFOLD(SameQ,TABLE,global)\
 UNFOLD(Set,TABLE,global)\
 UNFOLD(SetDelayed,TABLE,global)\
+UNFOLD(ShowOperators,TABLE,global)\
 UNFOLD(Slot,TABLE,global)\
 UNFOLD(Span,TABLE,global)\
 UNFOLD(String,TABLE,global)\

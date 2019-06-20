@@ -15,7 +15,7 @@ Expr* FullForm::mod(Expr* expr){
 	}
 	return expr;
 }
-Expr* FullForm::function(Expr* expr){
+Expr* FullForm::evaluate(Expr* expr){
 	if(!expr->child){return expr;}
 	mod((expr->child));
 	std::cout << std::endl;

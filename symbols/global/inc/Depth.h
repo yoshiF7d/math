@@ -3,7 +3,7 @@
 class Depth : public Symbol{
 public :
 	Depth();
-	Expr* function(Expr* expr) override;
+	Expr* evaluate(Expr* expr) override;
 	int mod(Expr *expr);	void printdoc() override;
 
 };

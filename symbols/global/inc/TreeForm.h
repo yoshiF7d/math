@@ -9,6 +9,6 @@ public :
 
 static Expr* mod2(Expr* expr, std::string branch);
 	static void mod(Expr *expr);
-	Expr* function(Expr* expr) override;	void printdoc() override;
+	Expr* evaluate(Expr* expr) override;	void printdoc() override;
 
 };

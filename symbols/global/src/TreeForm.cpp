@@ -58,7 +58,7 @@ Expr* TreeForm::mod2(Expr* expr, std::string branch){
 void TreeForm::mod(Expr *expr){
 	mod2(expr,std::string());
 }
-Expr* TreeForm::function(Expr* expr){
+Expr* TreeForm::evaluate(Expr* expr){
 	if(!expr->child){return expr;}
 	mod(expr->child);
 	return expr;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <list>
 #include <unordered_map>
+#include <parser.h>
 
 using SymbolMap = std::unordered_map<std::string,Symbol*>;
 using Context = std::pair<std::string,SymbolMap>;
@@ -11,6 +12,7 @@ using Context = std::pair<std::string,SymbolMap>;
 class SymbolTable{
   private: SymbolTable();
   public:
+	static Parser* parser;
 	static Context *local;
 	static std::list<Context> context;
 	static SymbolMap alias;

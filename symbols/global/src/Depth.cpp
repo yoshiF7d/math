@@ -1,7 +1,7 @@
 #include <SymbolList.h>
 #include <SymbolTable.h>
 Depth::Depth() : Symbol("Depth","",global_Depth,0,Protected,0,"","{深さ}"){}
-Expr* Depth::function(Expr* expr){
+Expr* Depth::evaluate(Expr* expr){
 	int depth = mod((expr->child));
 	(expr->child)->deleteRoot();
 	return Integer::create(depth);

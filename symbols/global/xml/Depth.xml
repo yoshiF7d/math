@@ -2,7 +2,7 @@
 <ALIAS>{深さ}</ALIAS>
 <ATTRIBUTES>Protected</ATTRIBUTES>
 <SOURCE>
-Expr* function(Expr* expr) override{
+Expr* evaluate(Expr* expr) override{
 	int depth = mod($00);
 	$00->deleteRoot();
 	return Integer::create(depth);

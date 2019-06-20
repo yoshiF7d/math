@@ -1,6 +1,6 @@
-#include <parser.h>
 #include <Symbol.h>
 #include <SymbolTable.h>
+#include <parser.h>
 
 Parser::Tokenizer::Tokenizer(){
 	Expr *last,*e;
@@ -53,8 +53,8 @@ Parser::Tokenizer::Tokenizer(){
 			}
 		}
 	}
-	TreeForm::mod(this->optree);
-	std::cout << std::endl;
+	//TreeForm::mod(this->optree);
+	//std::cout << std::endl;
 }
 Parser::Tokenizer::~Tokenizer(){
 	this->optree->deleteRoot();
@@ -184,8 +184,8 @@ Expr* Parser::Tokenizer::readstring(){
 }
 */
 
-Expr* Parser::Tokenizer::read(){
-	Expr *expr;
+Expr* Parser::Tokenizer::read(Symbol *endtoken){
+	Expr *expr=nullptr;
 	std::string::iterator save;
 	while(isblank(*current)){current++;}
 	if(current==string.end()){return nullptr;}
@@ -194,19 +194,28 @@ Expr* Parser::Tokenizer::read(){
 	if((expr=Number::parse(&current))){return expr;}
 	if((expr=String::parse(&current,string.end()))){return expr;}
 	if(optree){
-		Expr *last=optree,*e;
-	  head:
-		for(e=last->child;e;e=e->next){
-			if(e->symbol->id==internal_Character){
-				if(castData(CharacterData,e->data)->character==*current){
-					last = e;
-					current++;
-					goto head;
+		Expr *last=optree;
+		bool hit;
+		do{
+			hit = false;
+			for(Expr* e=last->child;e;e=e->next){
+				if(e->symbol->id==internal_Character){
+					if(castData(CharacterData,e->data)->character==*current){
+						last = e;
+						hit = true;
+					}
+				}else{
+					expr = e;
+					if(endtoken && expr->symbol->id == internal_RightBracket){
+						if(castData(RightBracketData,expr->data)->expr->symbol == endtoken){
+							hit=false; 
+							break;
+						}
+					}
 				}
-			}else{
-				expr = e;
 			}
-		}
+			if(hit){current++;}
+		}while(hit);
 		return expr;
 	}
 	std::cout << __func__ << " unregistered token " << *current << " is found" << std::endl;
@@ -216,8 +225,8 @@ Expr* Parser::Tokenizer::read(){
 
 Parser::Parser(){
 	tokenizer = new Tokenizer();
+	this->end = nullptr;
 	root = current = nullptr;
-	end = nullptr;
 }
 
 Parser::~Parser(){}
@@ -226,6 +235,10 @@ Parser::Parser(Tokenizer *tokenizer, Symbol *end){
 	this->tokenizer = tokenizer;
 	this->end = end;
 	root = current = nullptr;
+}
+
+void Parser::print(){
+	TreeForm::mod(this->tokenizer->optree);
 }
 
 void Parser::finish(){
@@ -248,7 +261,7 @@ void Parser::push(Expr *expr){
 	
 	if(!current){
 		setRoot(expr);
-		if(current->symbol->associativity & BINARY){
+		if(expr->symbol->associativity & BINARY){
 			expr->appendChild(new Expr(global_Null));
 		}
 		return;
@@ -382,8 +395,9 @@ void Parser::setRoot(Expr *expr){
 
 Expr* Parser::parse(){
 	Expr *expr,*expr2;
+	//std::cout << "parse start\n";
 	while(tokenizer->current != tokenizer->string.end()){
-		expr = tokenizer->read();
+		expr = tokenizer->read(end);
 		if(expr){
 			/*
 			std::cout << "expr : " << expr->toString() << "\n";
@@ -395,31 +409,31 @@ Expr* Parser::parse(){
 				push(expr);
 			}else if(expr->symbol->id == internal_LeftBracket){
 				//std::cout << KWHT << "LeftBracket" << KNRM << "\n";
-				Parser parser(tokenizer,castData(RightBracketData,expr->data)->expr->symbol);
+				Parser parser(tokenizer,castData(LeftBracketData,expr->data)->expr->symbol);
 				expr2 = parser.parse();
 				if(expr2){
 					expr2 = castData(LeftBracketData,expr->data)->expr->copy()->appendChild(expr2);
-					if( expr2->symbol->id == internal_Bracket ||
-					    expr2->symbol->id == global_Part
-					){
-						pushBracket(expr2);
-					}else{
-						push(expr2);
-					}
-				}else{push(new Expr(global_Null));}
+				}else{
+					expr2 = castData(LeftBracketData,expr->data)->expr->copy()->appendChild(new Expr(global_Null));
+				}
+				if( expr2->symbol->id == internal_Bracket ||
+					expr2->symbol->id == global_Part
+				){
+					pushBracket(expr2);
+				}else{
+					push(expr2);
+				}
 			}else if(expr->symbol->id == internal_RightBracket){
 				//std::cout << KWHT << "RightBracket" << KNRM << "\n";
-				if(end==(castData(RightBracketData,expr->data)->expr->symbol)){
-					break;
-				}else{
+				if(end!=(castData(RightBracketData,expr->data)->expr->symbol)){
 				  if(end){
-					std::cout << __func__ << " : bracket mismatch : " << end->mark[0] << " " << end->mark[1] << std::endl;
+					std::cout << __func__ << " : bracket mismatch 1 : " << end->mark[1] << " and ";
 				  }else{
-					std::cout << __func__ << " : bracket mismatch : " << expr->symbol->mark[1] << "\n";
+					std::cout << __func__ << " : bracket mismatch 2 : ";
 				  }
-					/*ignore*/
-					break;
+				  std::cout << castData(RightBracketData,expr->data)->expr->symbol->mark[1] << "\n";
 				}
+				break;
 			}else{
 				if(!root || (current->symbol->associativity & BINARY)){
 					//std::cout << KWHT << "prefer pre" << KNRM << "\n";
@@ -445,39 +459,23 @@ Expr* Parser::parse(){
 			break;
 		}
 	}
+	if(!current){return nullptr;}
 	if(current->symbol->associativity & BINARY){
 		pushDirect(new Expr(global_Null));
 	}
-	if(!end){root = preEvaluate(root);}
-	return root;
-}
-
-void printexpr(Expr *expr){
-	if(expr){
-		std::cout << expr->toString() << "\n";
-	}else{
-		std::cout << "nullptr\n";
+	if(!end){
+		TreeForm::mod(root);
+		root = preEvaluate(root);
 	}
-}
-
-void Parser::print(){
-	std::cout << "root : "; printexpr(root);
-	std::cout << "current : "; printexpr(current);
-	if(end){std::cout << "end : "; end->toString();}
+	//std::cout << "parse end\n";
+	return root;
 }
 
 Expr* Parser::preEvaluate(Expr* expr){
 	if(expr){
 		Expr* e;
 		for(e=expr->child;e;e=e->next){e=preEvaluate(e);}
-		switch(expr->symbol->id){
-		  case internal_Parenthesis:
-		  case internal_Bracket:
-			break;
-		  case internal_Comma:
-		  default:
-			break;
-		}
+		expr=expr->symbol->preEvaluate(expr);
 	}
 	return expr;
 }

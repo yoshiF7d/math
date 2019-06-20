@@ -35,7 +35,8 @@ class Symbol{
 	void print();
 	void addAttributes(Attributes attributes);
 	static Expr* parse(std::string::iterator *current);
-	virtual Expr* function(Expr *);
+	virtual Expr* evaluate(Expr *);
+	virtual Expr* preEvaluate(Expr *);
 	virtual void printdoc();
 	virtual std::string toString();
 	virtual Data* createData();

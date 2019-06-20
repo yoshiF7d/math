@@ -3,7 +3,7 @@
 <PRECEDENCE>670</PRECEDENCE>
 <ATTRIBUTES>Locked|Protected</ATTRIBUTES>
 <SOURCE>
-Expr* function(Expr *expr) override{
+Expr* evaluate(Expr *expr) override{
 	Expr *e;
 	if(!expr){return nullptr;}
   reeval:
@@ -61,7 +61,7 @@ Expr* function(Expr *expr) override{
 	}
 	*/
 	if(expr->symbol->id!=global_Evaluate){
-		expr = expr->symbol->function(expr);
+		expr = expr->symbol->evaluate(expr);
 	}else{
 		/*
 		Expr_replace($0,e=$00);

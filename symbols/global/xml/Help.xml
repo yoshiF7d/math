@@ -4,7 +4,7 @@
 <SYMBOL>"?"</SYMBOL>
 <ATTRIBUTES>Locked|Protected|HoldAll</ATTRIBUTES>
 <SOURCE>
-Expr *function(Expr *expr) override{
+Expr *evaluate(Expr *expr) override{
 	if($00){
 		SymbolTable::print($00->symbol->id);
 	}else{

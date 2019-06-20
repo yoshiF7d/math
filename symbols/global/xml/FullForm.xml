@@ -16,7 +16,7 @@ static Expr* mod(Expr* expr){
 	}
 	return expr;
 }
-Expr* function(Expr* expr) override{
+Expr* evaluate(Expr* expr) override{
 	if(!expr->child){return expr;}
 	mod($00);
 	std::cout << std::endl;

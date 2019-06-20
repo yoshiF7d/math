@@ -1,7 +1,7 @@
 #include <SymbolList.h>
 #include <SymbolTable.h>
 Help::Help() : Symbol("Help","?",global_Help,1,Locked|Protected|HoldAll,post,"",""){}
-Expr *Help::function(Expr *expr){
+Expr *Help::evaluate(Expr *expr){
 	if((expr->child)){
 		SymbolTable::print((expr->child)->symbol->id);
 	}else{

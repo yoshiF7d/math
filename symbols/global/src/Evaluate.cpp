@@ -1,7 +1,7 @@
 #include <SymbolList.h>
 #include <SymbolTable.h>
 Evaluate::Evaluate() : Symbol("Evaluate","",global_Evaluate,670,Locked|Protected,0,"","{評価}"){}
-Expr* Evaluate::function(Expr *expr){
+Expr* Evaluate::evaluate(Expr *expr){
 	Expr *e;
 	if(!expr){return nullptr;}
   reeval:
@@ -59,7 +59,7 @@ Expr* Evaluate::function(Expr *expr){
 	}
 	*/
 	if(expr->symbol->id!=global_Evaluate){
-		expr = expr->symbol->function(expr);
+		expr = expr->symbol->evaluate(expr);
 	}else{
 		/*
 		Expr_replace($0,e=$00);

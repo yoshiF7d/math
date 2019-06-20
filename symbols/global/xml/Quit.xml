@@ -2,7 +2,7 @@
 <PRECEDENCE>670</PRECEDENCE>
 <ATTRIBUTES>Locked|Protected</ATTRIBUTES>
 <SOURCE>
-Expr* function(Expr* expr) override{
+Expr* evaluate(Expr* expr) override{
 	expr->deleteRoot();
 	return nullptr;
 }

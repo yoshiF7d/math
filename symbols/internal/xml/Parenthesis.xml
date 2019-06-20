@@ -3,3 +3,13 @@
 <ATTRIBUTES>Protected</ATTRIBUTES>
 <ASSOCIATIVITY>bracket</ASSOCIATIVITY>
 <SYMBOL>"()"</SYMBOL>
+<SOURCE>
+Expr* preEvaluate(Expr* expr) override{
+	if($00){
+		Expr *e = expr->replace($00);
+		delete expr;
+		expr = e;
+	}
+	return expr;
+	}
+</SOURCE>

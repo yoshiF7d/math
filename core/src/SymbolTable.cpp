@@ -5,6 +5,7 @@ Context * SymbolTable::local;
 std::list<Context> SymbolTable::context;
 SymbolMap SymbolTable::alias;
 Symbol * SymbolTable::idtable[ID::end];
+Parser * SymbolTable::parser;
 
 void SymbolTable::init(){
 	context.push_back(make_pair("local",SymbolMap{}));
@@ -22,9 +23,13 @@ void SymbolTable::init(){
 			}
 		}
 	}
+	parser = new Parser();
 }
 
 void SymbolTable::finish(){
+	parser->finish();
+	delete parser;
+	parser = nullptr;
 	for(auto& t : idtable){
 		delete t;
 	}

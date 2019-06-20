@@ -1,6 +1,5 @@
 #ifndef PARSER_H
 #define PARSER_H
-#include <SymbolTable.h>
 #include <Expr.h>
 #include <cctype>
 #include <iostream>
@@ -22,7 +21,7 @@ class Parser{
 		Tokenizer();
 		~Tokenizer();
 		void set(std::string string);
-		Expr *read();
+		Expr *read(Symbol *endtoken);
 	};
 	Tokenizer *tokenizer;
 	Expr *root;

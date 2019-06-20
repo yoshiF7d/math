@@ -2,8 +2,8 @@
 #include <pwd.h>
 #include <SymbolTable.h>
 #include <Expr.h>
-#include <unistd.h>
 #include <parser.h>
+#include <unistd.h>
 #include <string.h>
 #include <iostream>
 #include <linenoise.hpp>
@@ -35,14 +35,13 @@ int main(int argc, char *argv[]){
 	snprintf(historyfile,256,"%s/.math_histoy",pw->pw_dir);
 	read_history(historyfile);
 	SymbolTable::init();
-	Parser parser;
 	/*fprintf(stderr,"size of data : %ld byte\n",sizeof(union un_data));
 	fprintf(stderr,"size of Expr : %ld byte\n",sizeof(Expr));
 	fprintf(stderr,"size of Expr_Sub : %ld byte\n",sizeof(Expr_Sub));
 	fprintf(stderr,"size of int : %ld byte\n",sizeof(int));*/
 	if(com){
-		parser.set(std::string(com));
-		expr=parser.parse();
+		SymbolTable::parser->set(std::string(com));
+		expr=SymbolTable::parser->parse();
 		if(!expr){
 			printf("parse error\n");
 		}else{
@@ -61,8 +60,8 @@ int main(int argc, char *argv[]){
 			*/
 			buf = std::string(line);
 			if(!buf.empty()){
-				parser.set(buf);
-				expr=parser.parse();
+				SymbolTable::parser->set(buf);
+				expr=SymbolTable::parser->parse();
 				if(!expr){
 					std::cout << "parse error\n";
 					continue;
@@ -70,14 +69,14 @@ int main(int argc, char *argv[]){
 				TreeForm::mod(expr);
 				std::cout << std::endl;
 				add_history(buf.c_str());
-				expr = SymbolTable::get(global_Evaluate)->function(expr);
+				expr = SymbolTable::get(global_Evaluate)->evaluate(expr);
 				if(!expr){break;}
+				TreeForm::mod(expr);
 				expr->deleteRoot();
 				free(line);
 			}
 		}
 	}
-	parser.finish();
 	SymbolTable::finish();
 	write_history(historyfile);
 	return 0;
