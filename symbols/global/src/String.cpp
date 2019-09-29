@@ -24,6 +24,7 @@ Expr *String::parse(std::string::iterator *current,std::string::iterator end){
 			escape = true;
 			continue;
 		}else if(*it=='"'){
+			it++;
 			break;
 		}else{
 			str += *it;
@@ -40,14 +41,19 @@ Expr *String::create(std::string string){
 }
 Data* String::createData(){return new StringData ();}
 StringData::StringData(){
-	this->string = "";
+	initialized = false;
 }
-StringData::StringData(std::string){
+StringData::StringData(std::string string){
+	initialized = true;
 	this->string = string;
 }
 StringData::~StringData(){}
 std::string StringData::toString(){
-	return this->string;
+	if(initialized){
+		return this->string;
+	}else{
+		return SymbolTable::get(global_String)->toString();
+	}
 }
 
 void String::printdoc(){printf(

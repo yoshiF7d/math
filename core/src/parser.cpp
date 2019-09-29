@@ -6,7 +6,7 @@ Parser::Tokenizer::Tokenizer(){
 	Expr *last,*e;
 	Symbol *symbol;
 	std::list<Context> context = SymbolTable::context;
-	this->optree = last = new Expr(internal_Node);
+	this->optree = last = new Expr(global_Symbol);
 	
 	/*making operator tree*/
 	
@@ -15,8 +15,10 @@ Parser::Tokenizer::Tokenizer(){
 	/*          -> Plus           */
 	/*     -> - -> - -> Decrement */
 	/*          -> Minus          */
-	/*     -> [ -> LeftBracket -> Function */
-	/*     -> ] -> RightBracket -> Function */
+	/*     -> [ -> Left -> Bracket */
+	/*     -> ] -> Right -> Bracket */
+	/*     -> ( -> Left -> Parenthesis */
+	/*     -> ) -> Right -> Parenthesis */
 	
 	for(auto&& c : context){
 		for(auto&& t: c.second){
@@ -190,7 +192,7 @@ Expr* Parser::Tokenizer::read(Symbol *endtoken){
 	while(isblank(*current)){current++;}
 	if(current==string.end()){return nullptr;}
 	save = current;
-	if((expr=Symbol::parse(&current))){return expr;}
+	if((expr=Symbol::parse(&current))){return SymbolContainer::wrap(expr);} /*prevent symbol to bond when full form is inputed*/
 	if((expr=Number::parse(&current))){return expr;}
 	if((expr=String::parse(&current,string.end()))){return expr;}
 	if(optree){
@@ -265,39 +267,28 @@ void Parser::push(Expr *expr){
 			expr->appendChild(new Expr(global_Null));
 		}
 		return;
-	}else if(
+	}
+	
+	if(
 	   (current->symbol->associativity & BINARY) &&
 	   (expr->symbol->associativity & BINARY)
 	){
+		/*
 		if(expr->symbol->id == global_Blank
 		|| expr->symbol->id == global_BlankSequence
 		|| expr->symbol->id == global_BlankNullSequence
 		){
 			pushDirect(expr->appendChild(new Expr(global_Null)));
-		}else{
+		}else
+		*/
+		{
 			push(new Expr(global_Null));
 			push(expr);
 		}
 		return;
 	}
-	
-	if(
-		current->symbol->precedence>=670 && 
-		expr->symbol->precedence>=670 &&
-		!(current->symbol->associativity & BINARY) &&
-		!(expr->symbol->associativity & BINARY)
-	)
-	{
-		push(new Expr(global_Times));
-		push(expr);
-		return;
-	}
 	if(expr->symbol->precedence >= 670){
-		if(expr->symbol->associativity & BINARY){
-			dest = current->parent;
-		}else{
-			dest = current;
-		}
+		dest = current;
 	}else{
 		for(dest=current;dest;dest=dest->parent){
 			if(expr->symbol->precedence >= dest->symbol->precedence){break;}
@@ -310,7 +301,36 @@ void Parser::push(Expr *expr){
 		return;
 	}
 	
-	if(!AtomQ::mod(dest)){
+	if(dest->symbol->precedence >= 670){
+		if( 
+		  (expr->symbol->id == global_Blank
+		|| expr->symbol->id == global_BlankSequence
+		|| expr->symbol->id == global_BlankNullSequence)
+		){
+			/*a_ -> a:_*/
+			Expr *e = new Expr(internal_PatternBlank);
+			if(!dest->parent){setRoot(e->appendChild(dest));}
+			else{e->insert(dest->parent,dest);}
+			e->appendChild(expr);
+			goto end;
+		}else if(
+		  (dest->symbol->id == global_Blank
+		|| dest->symbol->id == global_BlankSequence
+		|| dest->symbol->id == global_BlankNullSequence)
+		|| dest->symbol->id == global_Slot
+		|| dest->symbol->id == global_SlotSequence
+		){
+			/*_a -> _[a]*/
+			/*#a -> #[a]*/
+			pushDirect(expr);
+			return;
+		}else{
+			/*a b -> a*b*/
+			push(new Expr(global_Times));
+			push(expr);
+			return;
+		}
+	}else{
 		switch(dest->symbol->associativity){
 		  case Associativity::left: /* a~b~c -> ~[~[a,b],c] */
 			//if(root){std::cout <<KCYN << "Left"<< KNRM<<"\n";}
@@ -336,18 +356,6 @@ void Parser::push(Expr *expr){
 				else{current->insert(dest->parent,dest);}
 				push(expr);
 				return;
-			}
-			break;
-		  case Associativity::one: /* a~b~c -> ~[~[a,b],c]] */
-			//if(root){std::cout <<KCYN << "binary"<< KNRM<<"\n";}
-			if(dest==current && dest->child){
-				if(dest->child->next){
-					current = new Expr(internal_Parenthesis);
-					if(!dest->parent){setRoot(current->appendChild(dest));}
-					else{current->insert(dest->parent,dest);}
-					push(expr);
-					return;
-				}
 			}
 			break;
 		  case Associativity::right: /* a~b~c -> ~[a,~[b,c]] */
@@ -438,8 +446,8 @@ Expr* Parser::parse(){
 				if(!root || (current->symbol->associativity & BINARY)){
 					//std::cout << KWHT << "prefer pre" << KNRM << "\n";
 					for(Expr *e=expr;e;e=e->previous){
-						if(e->symbol->id != internal_Character 
-							&& e->symbol->associativity == Associativity::pre){
+						if(e->symbol->id != internal_Character && 
+							e->symbol->associativity == Associativity::pre){
 							expr=e; break;
 						}
 					}
@@ -464,7 +472,9 @@ Expr* Parser::parse(){
 		pushDirect(new Expr(global_Null));
 	}
 	if(!end){
+		std::cout << KYEL << "before pre-eval" << KNRM << "\n";
 		TreeForm::mod(root);
+		std::cout << std::endl;
 		root = preEvaluate(root);
 	}
 	//std::cout << "parse end\n";

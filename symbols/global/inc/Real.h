@@ -10,6 +10,7 @@ static Expr* create(std::string string);	void printdoc() override;
 
 };
 struct RealData : Data{
+	bool initialized;
 	#ifdef mpz
 		mpf_class real;
 	#else

@@ -3,6 +3,6 @@
 class PostApply : public Symbol{
 public :
 	PostApply();
-	void printdoc() override;
+	Expr* preEvaluate(Expr* expr) override;	void printdoc() override;
 
 };

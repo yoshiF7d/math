@@ -4,14 +4,14 @@
 <SOURCE>
 Expr *evaluate(Expr *expr) override{
 	if(!$00){return expr;}
+	Expr *e;
 	if(mod($00)){
-		expr->symbol = SymbolTable::get(global_True);
+		e=expr->replace(new Expr(global_True));
 	}else{
-		expr->symbol = SymbolTable::get(global_False);
+		e=expr->replace(new Expr(global_False));
 	}
-	$00->deleteRoot();
-	$00=NULL;
-	return expr;
+	delete expr;
+	return e;
 }
 
 static bool mod(Expr *expr){
@@ -19,6 +19,7 @@ static bool mod(Expr *expr){
 	  case global_Integer:
 	  case global_Real:
 	  case global_String:
+	  case internal_SymbolContainer:
 		return true;
 	  default:
 		return false;

@@ -21,9 +21,10 @@ Expr *Integer::create(int integer,int e){
 }
 Data* Integer::createData(){return new IntegerData ();}
 IntegerData::IntegerData(){
-	this->integer = 0;
+	initialized = false;
 }
 IntegerData::IntegerData(std::string string){
+	initialized = true;
 	#ifdef mpz
 		this->integer = string;
 	#else
@@ -31,13 +32,16 @@ IntegerData::IntegerData(std::string string){
 	#endif
 }
 IntegerData::IntegerData(int integer){
+	initialized = true;
 	this->integer = integer;
 }
 IntegerData::IntegerData(long integer){
+	initialized = true;
 	this->integer = integer;
 }
 
 IntegerData::IntegerData(int integer, int e){
+	initialized = true;
 	#ifdef mpz
 		mpz_ui_pow_ui(this->integer.get_mpz_t(),10,e);
 		this->integer *= mpz_class(integer);
@@ -47,11 +51,15 @@ IntegerData::IntegerData(int integer, int e){
 }
 
 std::string IntegerData::toString(){
+	if(initialized){
 	#ifdef mpz
 		return this->integer.get_str();
 	#else
 		return std::to_string(this->integer);
 	#endif
+	}else{
+		return SymbolTable::get(global_Integer)->toString();
+	}
 }
 IntegerData::~IntegerData(){}
 

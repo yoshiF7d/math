@@ -25,6 +25,7 @@ static Expr *parse(std::string::iterator *current,std::string::iterator end){
 			escape = true;
 			continue;
 		}else if(*it=='"'){
+			it++;
 			break;
 		}else{
 			str += *it;
@@ -46,6 +47,7 @@ String is the head of a character string "text"
 </DOC>
 <DATAINC>
 struct StringData : Data{
+	bool initialized;
 	std::string string;
 	StringData();
 	StringData(std::string);
@@ -55,13 +57,18 @@ struct StringData : Data{
 </DATAINC>
 <DATASRC>
 StringData::StringData(){
-	this->string = "";
+	initialized = false;
 }
-StringData::StringData(std::string){
+StringData::StringData(std::string string){
+	initialized = true;
 	this->string = string;
 }
 StringData::~StringData(){}
 std::string StringData::toString(){
-	return this->string;
+	if(initialized){
+		return this->string;
+	}else{
+		return SymbolTable::get(global_String)->toString();
+	}
 }
 </DATASRC>

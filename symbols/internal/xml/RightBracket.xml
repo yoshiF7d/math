@@ -12,7 +12,7 @@ struct RightBracketData : Data{
 </DATAINC>
 <DATASRC>
 RightBracketData::RightBracketData() : expr(nullptr){};
-RightBracketData::~RightBracketData(){};
+RightBracketData::~RightBracketData(){if(expr){delete expr;expr=nullptr;}};
 bool RightBracketData::operator ==(const Data& data){
 	return this->expr == static_cast<const RightBracketData&>(data).expr;
 };

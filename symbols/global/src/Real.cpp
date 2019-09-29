@@ -8,18 +8,20 @@ Expr* Real::create(std::string string){
 	return expr;
 }
 Data* Real::createData(){return new RealData ();}
-RealData::RealData(){this->set(0);}
-RealData::RealData(std::string string){this->set(string);}
-RealData::~RealData(){};
-void RealData::set(std::string string){
+RealData::RealData(){
+	initialized = false;
+}
+RealData::RealData(std::string string){
+	initialized = true;
 	#ifdef mpz
 		this->real = string;
 	#else
 		this->real = std::stold(string);
 	#endif
 }
-void RealData::set(double real){this->real = real;} 
+RealData::~RealData(){};
 std::string RealData::toString(){
+	if(initialized){
 	#ifdef mpz
 		return this->real.get_str();
 	#else
@@ -30,6 +32,9 @@ std::string RealData::toString(){
 		free(buf);
 		return string;
 	#endif
+	}else{
+		return SymbolTable::get(global_Real)->toString();
+	}
 }
 
 void Real::printdoc(){printf(

@@ -105,12 +105,18 @@ void Expr::deleteChildren(){
 	this->child = nullptr;
 }
 
-int Expr::getLength(){
+int Expr::length(){
 	Expr *e;
 	int i=0;
 	for(e=this;e;e=e->next,i++){}
 	return i;
 }
+
+int Expr::childCount(){
+	if(!this->child){return 0;}
+	else{return this->child->length();}
+}
+
 
 std::string Expr::toString(){
 	if(this->data){

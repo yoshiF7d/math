@@ -16,7 +16,8 @@ ATT_FUNC(HoldRest,0x0400) \
 ATT_FUNC(HoldAll,0x0800) \
 ATT_FUNC(HoldAllComplete,0x1000) \
 ATT_FUNC(SequenceHold,0x2000) \
-ATT_FUNC(Temporary,0x4000)
+ATT_FUNC(Temporary,0x4000) \
+ATT_FUNC(NHoldAll,0x08000) \
 
 #define ATT_ENUM(ATT,VAL) ATT=VAL,
 enum Attributes{ATT_TABLE(ATT_ENUM)};

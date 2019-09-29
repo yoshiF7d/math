@@ -2,7 +2,7 @@
 <PRECEDENCE>740</PRECEDENCE>
 <ASSOCIATIVITY>pre</ASSOCIATIVITY>
 <SYMBOL>"#"</SYMBOL>
-<ATTRIBUTES>Protected</ATTRIBUTES>
+<ATTRIBUTES>NHoldAll|Protected</ATTRIBUTES>
 <DOC>
 # represents the first argument supplied to a pure function.
 # n represents the nth argument.

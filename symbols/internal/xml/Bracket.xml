@@ -7,7 +7,7 @@
 Expr* preEvaluate(Expr* expr) override{
 	if(!$00){return expr;}
 	if($01){
-		if($00->symbol->associativity & BINARY){$00->deleteChildren();}
+		//if($00->symbol->associativity & BINARY){$00->deleteChildren();}
 		if(!$00->child){
 			Expr *e = $01;
 			$00->isolate();

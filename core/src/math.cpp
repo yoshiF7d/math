@@ -59,6 +59,7 @@ int main(int argc, char *argv[]){
 			if(quit){break;}
 			*/
 			buf = std::string(line);
+			free(line);
 			if(!buf.empty()){
 				SymbolTable::parser->set(buf);
 				expr=SymbolTable::parser->parse();
@@ -66,14 +67,16 @@ int main(int argc, char *argv[]){
 					std::cout << "parse error\n";
 					continue;
 				}
+				std::cout << KYEL << "after pre-eval" << KNRM << "\n";
 				TreeForm::mod(expr);
 				std::cout << std::endl;
 				add_history(buf.c_str());
 				expr = SymbolTable::get(global_Evaluate)->evaluate(expr);
 				if(!expr){break;}
+				std::cout << KYEL << "after eval" << KNRM << "\n";
 				TreeForm::mod(expr);
+				std::cout << std::endl;
 				expr->deleteRoot();
-				free(line);
 			}
 		}
 	}

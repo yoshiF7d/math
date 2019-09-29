@@ -8,4 +8,4 @@ Expr* Parenthesis::preEvaluate(Expr* expr){
 		expr = e;
 	}
 	return expr;
-	}
+}

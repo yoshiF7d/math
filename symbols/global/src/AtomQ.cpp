@@ -3,20 +3,21 @@
 AtomQ::AtomQ() : Symbol("AtomQ","",global_AtomQ,670,Protected,0,"",""){}
 Expr *AtomQ::evaluate(Expr *expr){
 	if(!(expr->child)){return expr;}
+	Expr *e;
 	if(mod((expr->child))){
-		expr->symbol = SymbolTable::get(global_True);
+		e=expr->replace(new Expr(global_True));
 	}else{
-		expr->symbol = SymbolTable::get(global_False);
+		e=expr->replace(new Expr(global_False));
 	}
-	(expr->child)->deleteRoot();
-	(expr->child)=NULL;
-	return expr;
+	delete expr;
+	return e;
 }
 bool AtomQ::mod(Expr *expr){
 	switch(expr->symbol->id){
 	  case global_Integer:
 	  case global_Real:
 	  case global_String:
+	  case internal_SymbolContainer:
 		return true;
 	  default:
 		return false;

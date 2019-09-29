@@ -10,6 +10,7 @@ public :
 
 };
 struct StringData : Data{
+	bool initialized;
 	std::string string;
 	StringData();
 	StringData(std::string);

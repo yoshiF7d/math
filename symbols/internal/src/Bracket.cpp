@@ -4,7 +4,7 @@ Bracket::Bracket() : Symbol("Bracket","[]",internal_Bracket,1000,Protected,brack
 Expr* Bracket::preEvaluate(Expr* expr){
 	if(!(expr->child)){return expr;}
 	if((expr->child->next)){
-		if((expr->child)->symbol->associativity & BINARY){(expr->child)->deleteChildren();}
+		//if($00->symbol->associativity & BINARY){$00->deleteChildren();}
 		if(!(expr->child)->child){
 			Expr *e = (expr->child->next);
 			(expr->child)->isolate();

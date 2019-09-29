@@ -12,7 +12,7 @@ struct LeftBracketData : Data{
 </DATAINC>
 <DATASRC>
 LeftBracketData::LeftBracketData() : expr(nullptr){};
-LeftBracketData::~LeftBracketData(){};
+LeftBracketData::~LeftBracketData(){if(expr){delete expr;expr=nullptr;}};
 bool LeftBracketData::operator ==(const Data& data){
 	return this->expr == static_cast<const LeftBracketData&>(data).expr;
 };

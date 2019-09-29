@@ -3,6 +3,6 @@
 class PreApply : public Symbol{
 public :
 	PreApply();
-	void printdoc() override;
+	Expr* preEvaluate(Expr* expr) override;	void printdoc() override;
 
 };

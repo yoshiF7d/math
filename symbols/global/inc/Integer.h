@@ -11,6 +11,7 @@ public :
 
 };
 struct IntegerData : Data{
+	bool initialized;
     #ifdef mpz
       mpz_class integer;
     #else

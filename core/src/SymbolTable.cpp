@@ -30,9 +30,17 @@ void SymbolTable::finish(){
 	parser->finish();
 	delete parser;
 	parser = nullptr;
+	for(auto&& c : context){
+		for(auto&& t : c.second){
+			delete t.second;
+		}
+		c.second.clear();
+	}
+	/*
 	for(auto& t : idtable){
 		delete t;
 	}
+	*/
 	context.clear();
 }
 
