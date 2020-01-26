@@ -1,0 +1,9 @@
+<NAME>Pattern</NAME>
+<PRECEDENCE>150</PRECEDENCE>
+<ASSOCIATIVITY>one</ASSOCIATIVITY>
+<SYMBOL>":"</SYMBOL>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<DOC>
+s:obj
+represents the pattern object obj, assigned the name s.
+</DOC>

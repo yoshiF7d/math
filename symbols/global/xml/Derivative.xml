@@ -1,0 +1,8 @@
+<NAME>Derivative</NAME>
+<ATTRIBUTES>NHoldAll</ATTRIBUTES>
+<PRECEDENCE>670</PRECEDENCE>
+<ASSOCIATIVITY>post</ASSOCIATIVITY>
+<SYMBOL>"'"</SYMBOL>
+<DOC>
+f' represents the derivative of a function f of one argument. 
+</DOC>

@@ -1,0 +1,8 @@
+<NAME>Out</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ATTRIBUTES>Listable|HoldFirst|Protected</ATTRIBUTES>
+<ASSOCIATIVITY>pre</ASSOCIATIVITY>
+<SYMBOL>"%"</SYMBOL>
+<DOC>
+% n or Out[n] is a global object that is assigned to be the value produced on the n th output line.
+</DOC>

@@ -1,0 +1,22 @@
+<NAME>ApplyLevelOne</NAME>
+<PRECEDENCE>620</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<ASSOCIATIVITY>right</ASSOCIATIVITY>
+<SYMBOL>"@@@"</SYMBOL>
+<DOC>
+f@@@expr is equivalent to Apply[f,expr,{1}]
+</DOC>
+<SOURCE>
+Expr* preEvaluate(Expr* expr) override{
+	if(!$00){return expr;}
+	if($01){
+		Expr *e = expr->replace(new Expr(global_Apply));
+		e->appendChild(expr->child);
+		delete expr;
+		expr = e;
+		e = new Expr(global_List);
+		expr->appendChild(e->appendChild(Integer::create(1)));
+	}
+	return expr;
+}
+</SOURCE>

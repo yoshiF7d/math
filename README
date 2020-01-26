@@ -1,0 +1,6 @@
+small Mathematica
+
+requires readline and maybe ncurses
+
+definisions of symbols are in symbol/*/xml.
+prec compiles codes for each symbols from xml files.

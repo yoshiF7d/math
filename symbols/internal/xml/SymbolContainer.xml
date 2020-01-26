@@ -1,0 +1,42 @@
+<NAME>SymbolContainer</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SOURCE>
+Expr* preEvaluate(Expr* expr) override{
+	return unwrap(expr);
+}
+
+static Expr* wrap(Expr* expr){
+	delete expr->data;
+	expr->data = new SymbolContainerData(expr->symbol);
+	expr->symbol = SymbolTable::get(internal_SymbolContainer);
+	return expr;
+}
+
+static Expr* unwrap(Expr* expr){
+	expr->symbol = castData(SymbolContainerData,expr->data)->symbol;
+	delete expr->data;
+	expr->data = expr->symbol->createData();
+	return expr;
+}
+
+</SOURCE>
+<DATAINC>
+struct SymbolContainerData : Data{
+	Symbol* symbol;
+	SymbolContainerData(Symbol* symbol=nullptr);
+	~SymbolContainerData();
+	std::string toString() override;
+};
+</DATAINC>
+<DATASRC>
+SymbolContainerData::SymbolContainerData(Symbol* symbol){
+	this->symbol = symbol;
+}
+std::string SymbolContainerData::toString(){
+	std::string string;
+	if(this->symbol){string=this->symbol->toString();}
+	return string;
+}
+SymbolContainerData::~SymbolContainerData(){}
+</DATASRC>

@@ -1,0 +1,14 @@
+<NAME>ShowOperators</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ATTRIBUTES>Flat|OneIdentity|Protected</ATTRIBUTES>
+<DOC>
+ShowOperators[] shows built-in operators.
+</DOC>
+<SOURCE>
+Expr* evaluate(Expr *expr) override{
+	if($00){
+		SymbolTable::parser->print();
+	}
+	return expr;
+}
+</SOURCE>

@@ -1,0 +1,9 @@
+<NAME>Association</NAME>
+<ATTRIBUTES>HoldAllComplete|Protected</ATTRIBUTES>
+<PRECEDENCE>670</PRECEDENCE>
+<ASSOCIATIVITY>bracket</ASSOCIATIVITY>
+<SYMBOL>"<||>"</SYMBOL>
+<DOC>
+Association[key_1->val_1,key_2->val_2,...]<|key_1->val_1,key_2->val_2,...|> 
+represents an association between keys and values.
+</DOC>

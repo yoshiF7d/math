@@ -1,0 +1,10 @@
+<NAME>Thread</NAME>
+<PRECEDENCE>670</PRECEDENCE>
+<ATTRIBUTES>Protected</ATTRIBUTES>
+<SOURCE>
+</SOURCE>
+<DOC>
+Thread[f[args]] threads f over any lists that appear in args.
+Thread[f[args],h] threads f over any objects with head h that appear in args.
+Thread[f[args],h,n] threads f over objects with head h that appear in the first n args.
+</DOC>

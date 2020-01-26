@@ -1,0 +1,9 @@
+<NAME>SlotSequence</NAME>
+<PRECEDENCE>740</PRECEDENCE>
+<ASSOCIATIVITY>pre</ASSOCIATIVITY>
+<SYMBOL>"##"</SYMBOL>
+<ATTRIBUTES>NHoldAll|Protected</ATTRIBUTES>
+<DOC>
+## represents the sequence of arguments supplied to a pure function. 
+## represents the sequence of arguments supplied to a pure function, starting with the n\[Null]\[Null]^th argument. 
+</DOC>
