@@ -1,4 +1,4 @@
-COMPILER = clang
+COMPILER = gcc
 CFLAG = -g
 LIBS =
 INCLUDE =  

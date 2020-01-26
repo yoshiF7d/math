@@ -9,6 +9,7 @@
 #include <linenoise.hpp>
 #define Function readline_Function
 #include <readline/readline.h>
+#include <readline/history.h>
 #undef Function
 
 //class Evaluate;

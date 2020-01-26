@@ -1,4 +1,4 @@
-COMPILER = clang++
+COMPILER = g++
 CFLAGS = -g -O0 -std=c++11
 LIBS = 
 INCLUDE = -I./inc -I./autoinc
