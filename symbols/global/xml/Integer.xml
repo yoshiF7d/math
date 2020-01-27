@@ -21,9 +21,9 @@ static Expr *create(int integer,int e){
 	expr->data = new IntegerData(integer,e);
 	return expr;
 }
-
 </SOURCE>
 <DATAINC>
+#include <cmath>
 struct IntegerData : Data{
 	bool initialized;
     #ifdef mpz
