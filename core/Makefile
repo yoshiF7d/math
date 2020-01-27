@@ -1,5 +1,5 @@
 COMPILER = g++
-CFLAGS = -g -O0 -std=c++11
+CFLAGS = -g -O0 
 LIBS = 
 INCLUDE = -I./inc -I./autoinc
 TARGET = ../bin/math
@@ -9,7 +9,7 @@ INCDIR = ./inc
 AUTOINCDIR = ./autoinc
 SDIR = ../symbols
 
-LDFLAGS = -lm -lgmp -lmpfr -lreadline -lncurses
+LDFLAGS = -lm -lreadline -lncurses
 SRCNAMES = math.cpp parser.cpp Expr.cpp Symbol.cpp SymbolTable.cpp
 
 SRCS = $(addprefix $(SRCDIR)/, $(SRCNAMES))
@@ -20,19 +20,27 @@ SOBJS = $(foreach PDIR, $(wildcard $(SDIR)/*), $(addprefix $(PDIR)/obj/, $(patsu
 
 OBJS += $(SOBJS)
 
+define compile_symbols
+$(1)/obj/%.o: $(1)/src/%.cpp
+	$(COMPILER) $(CFLAGS) $(INCLUDE) -o $$@ -c $$<
+endef
+
+$(foreach sdir,$(wildcard $(SDIR)/*),$(eval $(call compile_symbols,$(sdir))))
+
 $(TARGET) : $(OBJS) 
 	$(COMPILER) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
-	$(COMPILER) $(CFLAGS) $(INCLUDE) -o $@ -c $<	
-
-
-$(SDIR)/*/obj/%.o : $(SDIR)/*/src/%.cpp
 	$(COMPILER) $(CFLAGS) $(INCLUDE) -o $@ -c $<
+
+
+#$(SDIR)/*/obj/%.o : $(SDIR)/*/src/%.cpp
+#	$(COMPILER) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 
 $(OBJDIR)/parser.o : $(AUTOINCDIR)/SymbolList.h
 
-.PHONY : clean print
+
+.PHONY : all clean print
 clean :
 	-rm -f $(OBJDIR)/*.o
 	-rm -f $(AUTOINCDIR)/SymbolList.h 
