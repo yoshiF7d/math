@@ -4,7 +4,7 @@
 Context * SymbolTable::local;
 std::list<Context> SymbolTable::context;
 SymbolMap SymbolTable::alias;
-Symbol * SymbolTable::idtable[ID::end];
+Symbol * SymbolTable::idtable[id_end];
 Parser * SymbolTable::parser;
 
 void SymbolTable::init(){

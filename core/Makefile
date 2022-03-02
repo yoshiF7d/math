@@ -1,5 +1,5 @@
 COMPILER = g++
-CFLAGS = -g -O0 -std=c++11
+CFLAGS = -g -O3 -std=c++11
 LIBS = 
 INCLUDE = -I./inc -I./autoinc
 TARGET = ../bin/math

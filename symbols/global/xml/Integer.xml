@@ -24,6 +24,7 @@ static Expr *create(int integer,int e){
 </SOURCE>
 <DATAINC>
 #include <cmath>
+struct RealData;
 struct IntegerData : Data{
 	bool initialized;
     #ifdef mpz
@@ -37,6 +38,10 @@ struct IntegerData : Data{
 	IntegerData(long integer);
 	IntegerData(int integer, int e);
 	std::string toString() override;
+	long hash() override;
+	char order(IntegerData *data);
+	char order(RealData *data);
+	char order(Expr *expr);
 	~IntegerData();
 };
 </DATAINC>
@@ -82,6 +87,56 @@ std::string IntegerData::toString(){
 		return SymbolTable::get(global_Integer)->toString();
 	}
 }
+
+long IntegerData::hash(){
+	if(initialized){
+	#ifdef mpz
+		return this->integer.get_si();
+	#else
+		return (long)this->integer;
+	#endif
+	}else{
+		return 0;
+	}
+}
+
+char IntegerData::order(IntegerData *data){
+	int o;
+	#ifdef mpz
+		o = integer.cmp(data->integer); 
+	#else
+		o = data->integer - integer;	  
+	#endif
+	if(o>0){o=1;}
+	if(o<0){o=-1;}
+	return (char)o;
+}
+
+char IntegerData::order(RealData *data){
+	double od;
+	char o;
+	#ifdef mpz
+		od = integer.cmp(data->real); 
+	#else
+		od = integer - data->real;	  
+	#endif
+	if(od>0){o=1;}
+	if(od<0){o=-1;}	
+	return (char)o;
+}
+
+char IntegerData::order(Expr *expr){
+	if(!expr){return -1;}
+	switch(expr->symbol->id){
+	  case global_Real:
+		return this->order(castData(RealData,expr->data));
+	  case global_Integer:
+		return this->order(castData(IntegerData,expr->data));
+	  default:
+		return -1;
+	}
+}
+
 IntegerData::~IntegerData(){}
 </DATASRC>
 <DOC>

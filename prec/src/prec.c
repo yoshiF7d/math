@@ -11,6 +11,31 @@
 
 #define TABLE_SIZE 512
 #define INDENT 26
+
+#define KNRM  "\x1B[0m"
+#define KBLK  "\x1B[30m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT "\x1B[37m"
+
+#define BNRM  "\x1B[0m"
+#define BBLK  "\x1B[40m"
+#define BRED  "\x1B[41m"
+#define BGRN  "\x1B[42m"
+#define BYEL  "\x1B[43m"
+#define BBLU  "\x1B[44m"
+#define BMAG  "\x1B[45m"
+#define BCYN  "\x1B[46m"
+#define BWHT "\x1B[47m"
+
+#define RESET  "\x1B[0m"
+
+
+/*
 enum en_tag{
 	t_none,
 	t_name,
@@ -20,13 +45,17 @@ enum en_tag{
 	t_symbol,
 	t_builtinrules,
 	t_attributes,
+	t_include,
 	t_source,
 	t_datainc,
 	t_datasrc,
 	t_doc
 };
+*/
 
 char *spaces;
+
+void vprint(void *s){printf("%s",(char*)s);}
 unsigned long getFileSize(FILE *fp){
 	unsigned long fsize = ftell(fp);
 	fpos_t p; 
@@ -45,6 +74,7 @@ char *String_fread(FILE *fp){
 	fread(buf,1,size,fp); buf[size] = '\0';
 	return buf;
 }
+
 char *String_read(char *file){
 	char *buf;
 	FILE *fp = fopen(file,"r");
@@ -112,6 +142,12 @@ void String_replace(char *buf, char *str, char c){
 	}
 }
 
+char *String_tail(char *str){
+	char *p;
+	for(p=str;*p;p++){}
+	return --p;
+}
+
 char *getFileName(char *filename){
 	char *p, *tail;
 	tail = strchr(filename,'\0');
@@ -161,9 +197,31 @@ void String_removeBlank(char *string){
 	}
 }
 
-char *readcontent(char **ptr,char *ps, char *tag, int skipc){
-	char *p,*pss,*pe,sav;
-	
+void String_tolower(char *string){
+	char *p;
+	for(p=string;*p;++p){*p=tolower(*p);}
+}
+
+char *String_trim(char *string){
+	int len=0,i=0;
+	char *p,*tail;
+	if(string){
+		len = strlen(string);
+		for(p=string;isspace(*p);p++,i++){}
+		memmove(string,string+i,len+1-i);
+		p=String_tail(string);
+		for(p=String_tail(string);isspace(*p);p--){*p='\0';}
+	}
+	return string;
+}
+
+char *readcontent(char **ptr, char *tag, int skipc, int nonewl){
+	char *p,*ps,*rtn,*pe,sav;
+	char tbuf[32];
+	if(**ptr=='\n'){
+		(*ptr)++;
+	}
+	ps = *ptr;
 	for(p=*ptr;*p;p++){
 		/*skip comment*/
 		if(skipc){
@@ -187,12 +245,14 @@ char *readcontent(char **ptr,char *ps, char *tag, int skipc){
 			p++;
 			if(*p=='/'){
 				p++;
-				pss=p; 
+				rtn=p;
 				for(;*p;p++){if(*p=='>'){break;}}
 				sav = *p;
 				*p = '\0';
-				if(strcmp(tag,pss)!=0){
-					//printf("tag unmatch : tag : %s\t pss : %s\n",tag,pss); 
+				snprintf(tbuf,32,"%s",rtn);
+				String_tolower(tbuf);
+				if(strcmp(tag,tbuf)!=0){
+					printf("tag unmatch : tag : %s\t pss : %s\n",tag,tbuf); 
 					*p = sav;
 					*ptr = p; 
 					return NULL;
@@ -207,12 +267,15 @@ char *readcontent(char **ptr,char *ps, char *tag, int skipc){
 	*pe='\0';
 	if(*ps == '\0'){
 		//printf("no content : %s\n",tag);
-		pss = NULL;
+		rtn = NULL;
 	}
-	else{pss = String_copy(ps);}
+	else{rtn = String_copy(ps);}
 	*pe = sav;
 	*ptr = p;
-	return pss;
+	if(nonewl){
+		String_replace(rtn,"\t\r\n\\",' ');
+	}
+	return rtn;
 }
 
 typedef struct st_list{
@@ -266,23 +329,25 @@ typedef struct st_info{
 	char *name;
 	char *doc;
 	char *sfunc;
-	char *src;
+	char *include;
+	char *proto;
+	char *source;
 	char *datainc;
 	char *datasrc;
-	int sflag;
 }Info_Sub;
 typedef Info_Sub *Info;
 
-Info Info_create(char *filein, char *name, char *doc, char *sfunc, char *src, char *datainc, char *datasrc, int sflag){
+Info Info_create(char *filein, char *name, char *doc, char *sfunc, char *include, char *proto, char *source, char *datainc, char *datasrc){
 	Info info = malloc(sizeof(Info_Sub));
 	info->filein = filein;
 	info->name = name;
 	info->doc = doc;
 	info->sfunc = sfunc;
-	info->src = src;
+	info->include = include;
+	info->proto = proto;
+	info->source = source;
 	info->datainc = datainc;
 	info->datasrc = datasrc;
-	info->sflag = sflag;
 	return info;
 }
 
@@ -291,7 +356,9 @@ void Info_delete(Info info){
 		free(info->filein);
 		free(info->doc);
 		free(info->sfunc);
-		free(info->src);
+		free(info->include);
+		free(info->proto);
+		free(info->source);
 		free(info->datainc);
 		free(info->datasrc);
 		free(info);
@@ -301,23 +368,13 @@ void Info_vdelete(void *info){Info_delete(info);}
 
 void Info_print(Info info){
 	printf("filein : %s\n",info->filein);
+	printf("name : %s\n",info->name);
 	printf("sfunc : %s\n",info->sfunc);
 	printf("datainc : %s\n",info->datainc);
 	printf("datasrc : %s\n",info->datasrc);
 }
 
 void Info_vprint(void *info){Info_print(info);}
-
-enum en_sflag{
-	sf_init=0x0001,
-	sf_finish=0x0002,
-	sf_screate=0x0004,
-	sf_sdelete=0x0008,
-	sf_copy=0x0010,
-	sf_print=0x0020,
-	sf_docfunc=0x0040,
-	sf_equals=0x0080
-};
 
 char *List_concatenate(List list){
 	List s;
@@ -391,7 +448,7 @@ char *preprocess_source(char *name,char *source, char *argname, char *funcname){
 	int len;
 	List list=NULL;
 	//List_create(String_copy("\t"));
-	//printf("%s\n",funcname);
+	//printf("%s\n",funcname);	
 	/*=== argname replacement ===*/
 	for(ps=p=source;*p;p++){
 		if(*p=='/'){
@@ -441,7 +498,12 @@ char *preprocess_source(char *name,char *source, char *argname, char *funcname){
 		}
 	}
 	list = List_append(list,String_copy(ps));
-	//List_print(list);
+	
+	/*
+	puts(KCYN);
+	List_enum(list,vprint);
+	puts(KNRM);
+	*/
 	p = List_concatenate(list);
 	List_deleteRoot(list,free);
 	free(argname);
@@ -449,7 +511,6 @@ char *preprocess_source(char *name,char *source, char *argname, char *funcname){
 	return p;
 }
 
-void vprint(void *s){puts(s);}
 void parseSign(char *mark[], char *str){
 	char *p,*s;
 	List list=NULL,l;
@@ -488,19 +549,47 @@ char *removeDirectoryPath(char *str){
 	}
 }
 
+#define TAG(UNFOLD) \
+UNFOLD(name,0,0)\
+UNFOLD(precedence,0,0)\
+UNFOLD(associativity,0,0)\
+UNFOLD(symbol,0,0)\
+UNFOLD(alias,0,1)\
+UNFOLD(builtinrules,0,1)\
+UNFOLD(attributes,0,0)\
+UNFOLD(include,1,0)\
+UNFOLD(proto,1,0)\
+UNFOLD(source,1,0)\
+UNFOLD(doc,0,0)\
+UNFOLD(datainc,1,0)\
+UNFOLD(datasrc,1,0)
 
-List learn(List list,char *filein,char *dirin){
+List appendSymbol(List list,char *filein,char *dirin){
+#define DECLARE(NAME,SKIPC,NONEWL) char * NAME = NULL;
+	TAG(DECLARE)
+	char *fname=NULL,*sfunc=NULL;
 	char tbuf[32];
-	char *name=NULL,*alias=NULL,*fname=NULL,*precedence=NULL,*associativity=NULL,*sign=NULL,*builtinrules=NULL,
-	*attributes=NULL,*proto=NULL,*source=NULL,*doc=NULL,*datainc=NULL,*datasrc=NULL;
 	char sav;
-	char *buf,*p,*ps,*sfunc=NULL,*id;
-	enum en_tag tag=t_none;
-	int sfunclen,namelen,sflag=0,skipc=0;
-	
-	//printf("filein : %s\n",filein);
-
+	char *buf,*p,*ps,*id;
+	int sfunclen,namelen,skipc=0;
 	buf = String_read(filein);
+	for(p=buf;*p;p++){
+		if(*p=='<'){
+			ps = ++p;
+			for(;*p;p++){if(*p=='>'){break;}}
+			sav = *p;
+			*p='\0';
+			snprintf(tbuf,32,"%s",ps);
+			String_tolower(tbuf);
+			*p=sav;
+			p++;
+#define COMPARE(NAME,SKIPC,NONEWL) if(strcmp(tbuf,#NAME)==0){NAME = readcontent(&p,tbuf,SKIPC,NONEWL); goto loopend;}
+			TAG(COMPARE)
+			fprintf(stderr,"undefined tag %s is found\n",tbuf);
+		}
+		loopend:;
+	}
+	/*
 	for(p=buf;*p;p++){
 		skipc=0;
 		switch(tag){
@@ -511,30 +600,24 @@ List learn(List list,char *filein,char *dirin){
 				sav = *p;
 				*p='\0';
 				snprintf(tbuf,32,"%s",ps);
+				for(p=tbuf;*p;++p){*p=tolower(*p);}
 				*p=sav;
 				ps=p+1;
 				if(*ps=='\n'){ps++;}
-				if(strcmp(tbuf,"NAME")==0){tag=t_name;break;}
-				if(strcmp(tbuf,"ALIAS")==0){tag=t_alias;break;}
-				if(strcmp(tbuf,"PRECEDENCE")==0){tag=t_precedence;break;}
-				if(strcmp(tbuf,"ASSOCIATIVITY")==0){tag=t_associativity;break;}
-				if(strcmp(tbuf,"SYMBOL")==0){tag=t_symbol;break;}
-				if(strcmp(tbuf,"BUILTINRULES")==0){tag=t_builtinrules;break;}
-				if(strcmp(tbuf,"ATTRIBUTES")==0){tag=t_attributes;break;}
-				if(strcmp(tbuf,"SOURCE")==0){tag=t_source;skipc=1;break;}
-				if(strcmp(tbuf,"DOC")==0){tag=t_doc;break;}
-				if(strcmp(tbuf,"DATAINC")==0){tag=t_datainc;skipc=1;break;}
-				if(strcmp(tbuf,"DATASRC")==0){tag=t_datasrc;skipc=1;break;}
+				if(strcmp(tbuf,"NAME")==0){name = readcontent(&p,ps,tbuf,0);}
+				else if(strcmp(tbuf,"ALIAS")==0){alias = readcontent(&p,ps,tbuf,0);}
+				else if(strcmp(tbuf,"PRECEDENCE")==0){precedence = readcontent(&p,ps,tbuf,0);}
+				else if(strcmp(tbuf,"ASSOCIATIVITY")==0){associativity = readcontent(&p,ps,tbuf,0);}
+				else if(strcmp(tbuf,"SYMBOL")==0){tag=t_symbol;break;}
+				else if(strcmp(tbuf,"BUILTINRULES")==0){tag=t_builtinrules;break;}
+				else if(strcmp(tbuf,"ATTRIBUTES")==0){tag=t_attributes;break;}
+				else if(strcmp(tbuf,"INCLUDE")==0){tag=t_include;skipc=1;break;}
+				else if(strcmp(tbuf,"SOURCE")==0){tag=t_source;skipc=1;break;}
+				else if(strcmp(tbuf,"DOC")==0){tag=t_doc;break;}
+				else if(strcmp(tbuf,"DATAINC")==0){tag=t_datainc;skipc=1;break;}
+				else if(strcmp(tbuf,"DATASRC")==0){tag=t_datasrc;skipc=1;break;}
 				fprintf(stderr,"undefined tag %s is found\n",tbuf);
 			}
-			break;
-		  case t_name:
-			name = readcontent(&p,ps,tbuf,skipc);
-			tag = t_none;
-			break;
-		  case t_precedence:
-			precedence = readcontent(&p,ps,tbuf,skipc);
-			tag = t_none;
 			break;
 		  case t_associativity:
 			associativity = readcontent(&p,ps,tbuf,skipc);
@@ -578,10 +661,11 @@ List learn(List list,char *filein,char *dirin){
 			break;
 		}
 	}
+	*/
 	if(!attributes){attributes = String_copy("0");}
 	if(!precedence){precedence = String_copy("0");}
 	if(!associativity){associativity = String_copy("0");}
-	if(!sign){sign = String_copy("\"\"");}
+	if(!symbol){symbol = String_copy("\"\"");}
 	if(!builtinrules){builtinrules = String_copy("\"\"");}
 	else{
 		fname = malloc(sfunclen=(strlen(builtinrules)+22));
@@ -596,33 +680,29 @@ List learn(List list,char *filein,char *dirin){
 		free(alias);
 		alias = fname;
 	}
-	//printf("name : %s\n",name);
-	//printf("data : %s\n",data);
 	/*
-	printf("name : %s\n",name);
 	printf("attributes : %s\n",attributes);
 	printf("precedence : %s\n",precedence);
 	printf("associativity : %s\n",associativity);
-	printf("sign : %s\n",sign);
+	printf("symbol : %s\n",symbol);
 	printf("builtinrules : %s\n",builtinrules);
 	printf("doc : %s\n",doc);
-	printf("sign : %s\n",sign);
 	*/
 	sfunclen = snprintf(NULL,0,"Symbol(\"%s\",%s,%s_%s,%s,%s,%s,%s,%s)",
-		name,sign,removeDirectoryPath(dirin),name,precedence,attributes,associativity,builtinrules,alias);
+		name,symbol,removeDirectoryPath(dirin),name,precedence,attributes,associativity,builtinrules,alias);
 	sfunc = malloc(sfunclen+1);
 	snprintf(sfunc,sfunclen+1,"Symbol(\"%s\",%s,%s_%s,%s,%s,%s,%s,%s)",
-		name,sign,removeDirectoryPath(dirin),name,precedence,attributes,associativity,builtinrules,alias);
+		name,symbol,removeDirectoryPath(dirin),name,precedence,attributes,associativity,builtinrules,alias);
 	sfunc[sfunclen]='\0';
 	
 	free(buf);
+	free(alias);
 	free(precedence);
 	free(associativity);
-	free(sign);
+	free(symbol);
 	free(builtinrules);
 	free(attributes);
-	free(alias);
-	return List_append(list,Info_create(String_copy(filein),name,doc,sfunc,source,datainc,datasrc,sflag));
+	return List_append(list,Info_create(String_copy(filein),name,doc,sfunc,include,proto,source,datainc,datasrc));
 }
 
 typedef struct st_context{
@@ -661,6 +741,7 @@ typedef struct st_finfo{
 	char *rtntype;
 	char *name;
 	char *body;
+	char isclass;
 }FuncInfo_Sub;
 typedef FuncInfo_Sub *FuncInfo;
 
@@ -669,6 +750,7 @@ FuncInfo FuncInfo_create(char *rtntype, char *name, char *body){
 	finfo->rtntype = rtntype;
 	finfo->name = name;
 	finfo->body = body;
+	finfo->isclass = 0;
 	return finfo;
 }
 
@@ -699,27 +781,49 @@ void readtill(char **str, char *s){
 		else{*str=p; break;}
 	}
 }
-#define KNRM  "\x1B[0m"
-#define KBLK  "\x1B[30m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT "\x1B[37m"
 
-#define BNRM  "\x1B[0m"
-#define BBLK  "\x1B[40m"
-#define BRED  "\x1B[41m"
-#define BGRN  "\x1B[42m"
-#define BYEL  "\x1B[43m"
-#define BBLU  "\x1B[44m"
-#define BMAG  "\x1B[45m"
-#define BCYN  "\x1B[46m"
-#define BWHT "\x1B[47m"
+void filltill(char **str, char *s, char f){
+	char *p,*pp=s;
+	for(p=*str;*p;p++){
+		while(*p==*pp){
+			p++; pp++;
+		}
+		if(*pp){pp=s;}
+		else{
+			for(pp=*str;pp!=p;pp++){
+				*pp = f;
+			}
+			*str=p; break;
+		}
+	}
+}
 
-#define RESET  "\x1B[0m"
+void String_cut(char *s, char *e){
+	int len = strlen(e+1);
+	char *c;
+	memmove(s,e+1,len);
+	for(c=s+len;*c;c++){*c='\0';}
+}
+
+void removeComments(char *src){
+	char *p,*s,*tail;
+	List list=NULL;
+	for(p=src;*p;p++){
+		switch(*p){
+			case '/':
+				switch(*++p){
+					case '*':
+						s=p-1; readtill(&p,"*/"); String_cut(s,p-1); p=s-1; break;
+					case '/':
+						s=p-1; readtill(&p,"\n"); String_cut(s,p-1); p=s-1; break;
+					case '\0':
+						return;
+					default:
+						break;
+				}
+		}
+	}
+}
 
 List FList_extract(char *src){
 	char *p,*s,*e=NULL;
@@ -728,38 +832,49 @@ List FList_extract(char *src){
 	List t,list=NULL;
 	FuncInfo finfo;
 	if(!src){return NULL;}
-	for(level=0,s=p=src;*p;p++){
+
+	removeComments(src);
+	
+	for(p=src;*p;p++){
 		switch(*p){
-		case '/' :
-			switch(*++p){
-				case '*':
-					readtill(&p,"*/"); break;
-				case '/':
-					readtill(&p,"\n"); break;
-				case '\0':
-					goto end;
-				default:
+		  case '{':
+			for(;p!=src;--p){
+				if(*p=='\n'){
+					finfo = FuncInfo_create(NULL,String_clip(src,p),NULL);
+					list = List_append(list,finfo);
+					for(p++;*p == '\n' || isblank(*p);p++){}
 					break;
+				}
 			}
-			break;
-		case '{':
+			goto start;
+		  default:
+		    break;
+		}
+	}
+	start:
+	/*
+	puts(KYEL);
+	puts("start");
+	List_enum(list,FuncInfo_vprint);
+	puts(KNRM);
+	*/
+	for(level=0,s=p;*p;p++){
+		switch(*p){
+		  case '{':
 			if(level==0){e=p-1;}
 			level++;
 			break;
-		case '}':
+		  case '}':
 			level--;
 			if(level==0){
 				finfo = FuncInfo_create(String_clip(s,e),NULL,String_clip(e+1,p));
 				list = List_append(list,finfo);
-				for(p++;*p == '\n' || isblank(*p);p++){}
-				if(*p){
-					s = p;
-				}else{
-					goto end;
-				}
+				for(;*(p+1) == '\n' || isblank(*(p+1));p++){}
+				if(*p){s = p;}
+				else{goto end;}
 			}
 			break;
-		default:
+		  default:
 			break;
 		}
 	}
@@ -775,13 +890,17 @@ List FList_extract(char *src){
 				rtntype : "type"
 				name : "func"
 			*/
+			String_trim(finfo->rtntype);
+			/*
+			puts(KMAG);
+			puts(finfo->rtntype);
+			puts(KNRM);
+			*/
 			p = strchr(finfo->rtntype,'(');
 			if(p==NULL){
-				/*
-				printf("rtntype : %s\n",finfo->rtntype);
-				printf("body : %s\n",finfo->body);
-				printf("NULL POINTER\n");exit(1);
-				*/
+				/* class or struct */
+				finfo->isclass = 1;
+				p = String_tail(finfo->rtntype);
 			}
 			for(;p!=finfo->rtntype;p--){
 				if(isblank(*p) || *p == '*' || *p == '&'){
@@ -791,10 +910,26 @@ List FList_extract(char *src){
 					goto loopend;
 				}
 			}
+			finfo->name = String_copy(finfo->rtntype);
+			*(finfo->rtntype) = '\0';
 			loopend:;
 		}
 	}
 	return list;
+}
+
+int isSubClassMethod(char *str){
+	char *c,sav;
+	int rtn=0;
+	if((c=strchr(str,'('))){
+		sav=*c;
+		*c='\0';
+		if(strstr(str,"::")){
+			rtn=1;
+		}
+		*c=sav;
+	}
+	return rtn;
 }
 
 void incwrite(char *incfile, List ss, List ff){
@@ -804,14 +939,28 @@ void incwrite(char *incfile, List ss, List ff){
 	List f;
 	fprintf(fp,"#include <Expr.h>\n");
 	fprintf(fp,"#include <Symbol.h>\n");
+	
+	if(info->include){
+		fprintf(fp,"%s\n",info->include);
+	}
+	
 	fprintf(fp,"class %s : public Symbol{\n",info->name);
-	fprintf(fp,"public :\n");
+	fprintf(fp,"  public :\n");
 	fprintf(fp,"\t%s();\n",info->name);
 	for(f=ff;f;f=f->next){
 		finfo = f->content;
-		fprintf(fp,"\t%s%s;",finfo->rtntype,finfo->name);
-		if(f->next){fprintf(fp,"\n");}
+		if(finfo->body && !isSubClassMethod(finfo->name)){
+			/*
+			puts("NAME");
+			puts(KRED);
+			puts(finfo->name);
+			puts(KNRM);
+			*/
+			//if(*(info->name)=='M'){printf("%s%s;\n",finfo->rtntype,finfo->name);}
+			fprintf(fp,"\t%s%s;\n",finfo->rtntype,finfo->name);
+		}
 	}
+	fprintf(fp,"\n");
 	if(info->doc){
 		fprintf(fp,"\tvoid printdoc() override;\n");
 	}
@@ -844,7 +993,7 @@ char *remove_virt(char *str){
 char *extract_struct(char *str){
 	char *ps,*pe;
 	ps = strstr(str,"struct");
-	ps += 6;
+	ps += 6; 
 	for(;isblank(*ps);ps++){}
 	for(pe=ps;!isblank(*pe);pe++){}
 	return String_clip(ps,pe);
@@ -858,23 +1007,34 @@ void srcwrite(char *srcfile, List ss, List ff){
 	char *p,*buf;
 	fprintf(fp,"#include <SymbolList.h>\n");
 	fprintf(fp,"#include <SymbolTable.h>\n");
+	for(f=ff;f;f=f->next){
+		finfo = f->content;
+		if(!finfo->body){
+			fprintf(fp,"%s",finfo->name);
+		}
+	}
 	fprintf(fp,"%s::%s() : %s{}\n",info->name,info->name,info->sfunc);
+	if(info->proto){
+		fprintf(fp,"%s",info->proto);
+	}
 	for(f=ff;f;f=f->next){
 		finfo = f->content;
 		//printf("%s\n",finfo->name);
-		fprintf(fp,"%s%s::%s%s\n",
-			remove_static(finfo->rtntype),
-			info->name,
-			remove_virt(finfo->name),
-			preprocess_source(
-				info->name,finfo->body,
-				extract_argname(finfo->name),
-				extract_funcname(finfo->name)
-			)
-		);
+		if(finfo->body){
+			fprintf(fp,"%s%s::%s%s\n",
+				remove_static(finfo->rtntype),
+				info->name,
+				remove_virt(finfo->name),
+				preprocess_source(
+					info->name,finfo->body,
+					extract_argname(finfo->name),
+					extract_funcname(finfo->name)
+				)
+			);
+		}
 	}
 	if(info->datasrc){
-		fprintf(fp,"Data* %s::createData(){return new %s();}\n",info->name,extract_struct(info->datainc));
+		fprintf(fp,"Data* %s::createData(){return new %sData();}\n",info->name,info->name);
 		fprintf(fp,"%s\n",info->datasrc);
 	}
 	if(info->doc){
@@ -895,7 +1055,7 @@ void srcwrite(char *srcfile, List ss, List ff){
 	fclose(fp);
 }
 
-List master(List list, char *dirin, char *fileout){
+List appendContext(List list, char *dirin, char *fileout){
 	List ss,s=NULL;
 	List flist=NULL,dlist=NULL;
 	Info info;
@@ -917,7 +1077,7 @@ List master(List list, char *dirin, char *fileout){
 		if(!strcmp(getFileExtension(entry->d_name),".xml")){
 			snprintf(filein,256,"%s/%s",seeddir,entry->d_name);
 			//fprintf(stdout,"%s\n",filein);
-			s=learn(s,filein,dirin);
+			s=appendSymbol(s,filein,dirin);
 		}
 	}
 	closedir(dp);
@@ -933,7 +1093,8 @@ List master(List list, char *dirin, char *fileout){
 			}
 		}
 		//printf("%s\n",info->name);
-		flist = FList_extract(info->src);
+		flist = FList_extract(info->source);
+		//List_enum(flist,FuncInfo_vprint);
 		fprintf(stdout,"making %s\n",incfile);
 		incwrite(incfile,ss,flist);
 		fprintf(stdout,"making %s\n",srcfile);
@@ -1018,7 +1179,7 @@ void listwrite(char *file,List list){
 		context = c->content;
 		fprintf(fp,"\tCONTEXT_%s(UNFOLD,TABLE)\n",context->capital);
 	}
-	fprintf(fp,"\tend\n");
+	fprintf(fp,"\tid_end\n");
 	fprintf(fp,"};\n");
 	fprintf(fp,"#undef UNFOLD\n\n");
 	/*write make context*/
@@ -1101,6 +1262,7 @@ int main(int argc, char *argv[]){
 	DIR *dp=NULL;
 	struct dirent *entry;
 	char dirin[256],*buf,*p;
+	
 	if(argc<3){fprintf(stderr,"usage : %s symboldir SymbolList.h\n",argv[0]); return -1;}
 	/*fp : header file*/
 	/*fp2 : header file 2*/
@@ -1111,7 +1273,7 @@ int main(int argc, char *argv[]){
 	while((entry=readdir(dp))!=NULL){
 		if(entry->d_name[0]=='.'){continue;}
 		snprintf(dirin,256,"%s/%s",argv[1],entry->d_name);
-		list = master(list,dirin,argv[3]);
+		list = appendContext(list,dirin,argv[3]);
 	}
 	closedir(dp);
 	//List_enum(list,Context_vprint);

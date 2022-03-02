@@ -4,7 +4,7 @@
 <SYMBOL>"&"</SYMBOL>
 <ATTRIBUTES>HoldAll|Protected</ATTRIBUTES>
 <DOC>
-Lambda[body] or body& is a pure function. The formal parameters are # (or #1), #2, etc.
-Lambda[x,body] is a pure function with a single formal parameter x.
-Lambda[{Subscript[x, 1],Subscript[x, 2],\[Ellipsis]},body] is a pure function with a list of formal parameters.
+Function[body] or body& is a pure function. The formal parameters are # (or #1), #2, etc.
+Function[x,body] is a pure function with a single formal parameter x.
+Function[{Subscript[x, 1],Subscript[x, 2],\[Ellipsis]},body] is a pure function with a list of formal parameters.
 </DOC>

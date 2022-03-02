@@ -3,6 +3,25 @@
 <ASSOCIATIVITY>pre</ASSOCIATIVITY>
 <SYMBOL>"__"</SYMBOL>
 <ATTRIBUTES>Protected</ATTRIBUTES>
+<DATAINC>
+struct BlankSequenceData : Data{
+	Expr *start;
+	Expr *end;
+	BlankSequenceData();
+	~BlankSequenceData();
+	std::string toString() override;
+};
+</DATAINC>
+<DATASRC>
+BlankSequenceData::BlankSequenceData(){
+	start = nullptr;
+	end = nullptr;
+}
+BlankSequenceData::~BlankSequenceData(){};
+std::string BlankSequenceData::toString(){
+	return "__";
+}
+</DATASRC>
 <DOC>
 __(two _ characters) or BlankSequence[] is a pattern object that can stand for any squence of one or more expressions.
 __h or BlankSequence[h] can stand for any sequence of one or more expressions, all of which have head h.

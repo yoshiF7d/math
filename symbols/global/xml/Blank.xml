@@ -3,6 +3,25 @@
 <ASSOCIATIVITY>pre</ASSOCIATIVITY>
 <SYMBOL>"_"</SYMBOL>
 <ATTRIBUTES>Protected</ATTRIBUTES>
+<DATAINC>
+struct BlankData : Data{
+	Expr *start;
+	Expr *end;
+	BlankData();
+	~BlankData();
+	std::string toString() override;
+};
+</DATAINC>
+<DATASRC>
+BlankData::BlankData(){
+	start = nullptr;
+	end = nullptr;
+}
+BlankData::~BlankData(){};
+std::string BlankData::toString(){
+	return "_";
+}
+</DATASRC>
 <DOC>
 _ or Blank[] is a pattern object that can stand for any expression.
 _h or Blank[h] can stand for any expression with head h.

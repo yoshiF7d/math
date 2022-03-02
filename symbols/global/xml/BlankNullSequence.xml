@@ -3,6 +3,25 @@
 <ASSOCIATIVITY>pre</ASSOCIATIVITY>
 <SYMBOL>"___"</SYMBOL>
 <ATTRIBUTES>Protected</ATTRIBUTES>
+<DATAINC>
+struct BlankNullSequenceData : Data{
+	Expr *start;
+	Expr *end;
+	BlankNullSequenceData();
+	~BlankNullSequenceData();
+	std::string toString() override;
+};
+</DATAINC>
+<DATASRC>
+BlankNullSequenceData::BlankNullSequenceData(){
+	start = nullptr;
+	end = nullptr;
+}
+BlankNullSequenceData::~BlankNullSequenceData(){};
+std::string BlankNullSequenceData::toString(){
+	return "___";
+}
+</DATASRC>
 <DOC>
 ___(three _ characters) or BlankNullSequence[] is a pattern object that can stand for any squence of zero or more expressions.
 ___h or BlankNullSequence[h] can stand for any sequence of expressions, all of which have head h.

@@ -2,7 +2,6 @@
 <PRECEDENCE>1000</PRECEDENCE>
 <ATTRIBUTES>Protected</ATTRIBUTES>
 <SOURCE>
-
 static Expr* create(std::string string){
 	Expr *expr = new Expr();
 	expr->symbol = SymbolTable::get(global_Real);
@@ -14,6 +13,7 @@ static Expr* create(std::string string){
 Real is the head used for reals.
 </DOC>
 <DATAINC>
+struct IntegerData;
 struct RealData : Data{
 	bool initialized;
 	#ifdef mpz
@@ -28,6 +28,11 @@ struct RealData : Data{
 	void set(std::string string);
 	void set(double real);
 	std::string toString() override;
+	long hash() override;
+	
+	char order(IntegerData *data);
+	char order(RealData *data);
+	char order(Expr *expr);
 };
 </DATAINC>
 <DATASRC>
@@ -59,4 +64,58 @@ std::string RealData::toString(){
 		return SymbolTable::get(global_Real)->toString();
 	}
 }
+
+long RealData::hash(){
+	long h;
+	double d;
+	if(initialized){
+	#ifdef mpz
+		d = this->real.get_d();
+	#else
+		d = this->real;
+	#endif
+	}else{
+		d=0;
+	}
+	std::memcpy(&h,&d,sizeof(long));
+	return h>>32;
+}
+
+char RealData::order(IntegerData *data){
+	int o;
+	#ifdef mpz
+		o = real.cmp(data->integer); 
+	#else
+		o = data->integer - real;	  
+	#endif
+	if(o>0){o=1;}
+	if(o<0){o=-1;}
+	return (char)o;
+}
+	
+char RealData::order(RealData *data){
+	double od;
+	char o;
+	#ifdef mpz
+		od = real.cmp(data->real); 
+	#else
+		od = real - data->real;
+	#endif
+	if(od>0){o=1;}
+	if(od<0){o=-1;}	
+	return o;
+}
+
+char RealData::order(Expr *expr){
+	if(!expr){return -1;}
+	switch(expr->symbol->id){
+	  case global_Real:
+		return this->order(castData(RealData,expr->data));
+	  case global_Integer:
+		return this->order(castData(IntegerData,expr->data));
+	  default:
+		return -1;
+	}
+}
+
 </DATASRC>

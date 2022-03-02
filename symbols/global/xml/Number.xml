@@ -26,7 +26,7 @@ static Expr* parse(std::string::iterator *current){
 		if(*it=='+'){
 			it++;
 			if(isdigit(*it)){
-				*current = it; while(*it){it++;}
+				*current = it; while(isdigit(*it)){it++;}
 				if(type==BaseType::integer){
 					expr = Integer::create(
 						std::stoi(std::string(save,iend)),
@@ -42,12 +42,12 @@ static Expr* parse(std::string::iterator *current){
 		}else if(*it=='-'){
 			it++;
 			if(isdigit(*it)){
-				*current = it; while(*it){it++;}
+				*current = it; while(isdigit(*it)){it++;}
 				expr = Real::create(std::string(save,it));
 				goto end;
 			}
 		}else if(isdigit(*it)){
-			*current = it; while(*it){it++;}
+			*current = it; while(isdigit(*it)){it++;}
 			if(type==BaseType::integer){
 				expr = Integer::create(
 					std::stoi(std::string(save,iend)),

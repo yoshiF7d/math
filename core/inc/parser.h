@@ -7,13 +7,6 @@
 class Parser{
   private:
 	class Tokenizer{
-	  private:
-		enum ExpType{False=0,Plus,Minus};
-		ExpType readexp();
-		bool readint();
-		Expr* readnum();
-		Expr* readsymbol();
-		Expr* readstring();
 	  public:
 		Expr *optree;
 		std::string string;

@@ -3,56 +3,48 @@
 #include <Symbol.h>
 #include <SymbolTable.h>
 
+void Expr::init(){
+	this->symbol=nullptr;
+	this->data=nullptr;
+	this->next=nullptr;
+	this->previous=nullptr;
+	this->child=nullptr;
+	this->parent=nullptr;
+	this->hash=0;
+}
+
 Expr::Expr(){
-	symbol=nullptr;
-	data=nullptr;
-	next=nullptr;
-	previous=nullptr;
-	child=nullptr;
-	parent=nullptr;
+	this->init();
 }
 
 Expr::Expr(int id){
+	this->init();
 	symbol = SymbolTable::get(id);
 	data = symbol->createData();
-	next=nullptr;
-	previous=nullptr;
-	child=nullptr;
-	parent=nullptr;
 	//printf("Expr_id\t");
 	//printf("%x\t",this);
 	//std::cout << symbol->name << "\n";
 }
 
 Expr::Expr(std::string string){
-	//printf("Expr_string\n");
-	symbol = SymbolTable::get(string);
-	data = symbol->createData();
-	next=nullptr;
-	previous=nullptr;
-	child=nullptr;
-	parent=nullptr;
+	this->init();
+	this->symbol = SymbolTable::get(string);
+	this->data = this->symbol->createData();
 }
 
 Expr::Expr(Symbol *symbol){
+	this->init();
 	this->symbol = symbol;
-	data = symbol->createData();
-	next=nullptr;
-	previous=nullptr;
-	child=nullptr;
-	parent=nullptr;
+	this->data = symbol->createData();
 	//printf("Expr_symbol\t");
 	//printf("%x\t",this);
 	//std::cout << symbol->name << "\n";
 }
 
 Expr::Expr(const Expr& expr){
-	symbol = expr.symbol;
-	data = symbol->createData();
-	next=nullptr;
-	previous=nullptr;
-	child=nullptr;
-	parent=nullptr;
+	this->init();
+	this->symbol = expr.symbol;
+	this->data = this->symbol->createData();
 	//printf("Expr_copy\t");
 	//printf("%x\t",this);
 	//std::cout << symbol->name << "\n";
@@ -62,7 +54,7 @@ Expr::~Expr(){
 	//printf("~Expr\t",this);
 	//printf("%x\t",this);
 	//std::cout << symbol->name << "\n";
-	symbol->deleteData(data);
+	this->symbol->deleteData(data);
 }
 
 void Expr::deleteRoot(){
@@ -105,12 +97,89 @@ void Expr::deleteChildren(){
 	this->child = nullptr;
 }
 
+#define CHUNKSIZE 2
+long Expr::str_to_hash(std::string key){
+	int i,j;
+	int length = key.length();
+	long sum1 = 0;
+	long sum2 = 0; 
+	
+	for(i=0;i<length;i++){
+		if(i%CHUNKSIZE==0){
+			sum2 += sum1;
+			sum1 = key[i];
+		}else{
+			sum1 <<= 8;		/*1 byte*/
+			sum1 |= key[i];
+		}
+	}
+	sum2 += sum1;
+	return sum2 + ID::id_end;
+}
+
+long Expr::scramble(long x){
+	return x*2654435761;
+}
+
+long Expr::setHash(){
+	this->hash = 0;
+	long hash = (this->symbol->id) ? this->symbol->id : str_to_hash(this->symbol->name);
+	hash <<= 16;
+	if(this->data){
+		hash ^= this->data->hash();
+	}	
+	this->hash |= scramble(hash) & HASH_MAIN_BITMASK;
+	
+	switch(this->symbol->id){
+		case global_Pattern:
+		case global_Blank:
+		case global_BlankSequence:
+		case global_BlankNullSequence:
+		  this->hash |= HASH_PATTERN_BITMASK;
+		default:
+		  break;
+	}
+	
+	Expr *e;
+	hash = 0;
+	long mainhash = 0;
+	int depth = 0;
+	long maxdepth = 0;
+	long width = 0;
+	if(this->child){
+		for(e=this->child;e;e=e->next,width++){
+			hash = e->setHash();
+			if(hash & HASH_PATTERN_BITMASK){
+				this->hash |= HASH_PATTERN_BITMASK;
+			}
+			depth = (hash & HASH_DEPTH_BITMASK) >> 48;
+			if(depth > maxdepth){
+				maxdepth = depth;
+			}
+			mainhash += hash & HASH_MAIN_BITMASK;
+		}
+		mainhash = (mainhash/width + (this->hash & HASH_MAIN_BITMASK))>>1;
+		this->hash &= ~HASH_MAIN_BITMASK;
+		this->hash |= scramble(mainhash) & HASH_MAIN_BITMASK;
+		this->hash |= ((width) << 32) & HASH_WIDTH_BITMASK;
+		this->hash |= ((maxdepth+1) << 48) & HASH_DEPTH_BITMASK;
+	}
+	return this->hash;
+}
+
 int Expr::length(){
 	Expr *e;
 	int i=0;
 	for(e=this;e;e=e->next,i++){}
 	return i;
 }
+
+Expr* Expr::last(){
+	Expr *e;
+	for(e=this;e->next;e=e->next){}
+	return e;
+}
+
 
 int Expr::childCount(){
 	if(!this->child){return 0;}
@@ -319,6 +388,31 @@ Expr* Expr::getChild(int index){
 	return rtn;
 }
 
+static Expr* pushTo(Expr *stack,Expr *expr){
+	Expr *e = new Expr(internal_Node);
+	stack = Expr::appendTo(stack,e);
+	e->child = expr;
+	return stack;
+}
+
+Expr* Expr::push(Expr *expr){
+	Expr *e = new Expr(internal_Node);
+	this->append(e);
+	e->child = expr;
+	return this;
+}
+
+Expr* Expr::pop(){
+	Expr *last = this->last();
+	Expr *expr = last->child;
+	last->previous->next = nullptr;
+	delete last;
+	return expr;
+}
+
+Expr* Expr::top(){
+	return this->last()->child;
+}
 
 void Expr::swap(Expr& e1,Expr& e2){
 	std::swap(e1.symbol,e2.symbol);

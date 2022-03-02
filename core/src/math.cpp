@@ -14,6 +14,8 @@
 
 //class Evaluate;
 
+char *String_copy(const char *str);
+char *String_read(char *file);
 char *stripQuotes(char *str);
 
 int main(int argc, char *argv[]){
@@ -23,13 +25,16 @@ int main(int argc, char *argv[]){
 	int opt,oneline=0;
 	std::string buf;
 	struct passwd *pw = getpwuid(getuid());
-	while((opt= getopt(argc,argv,"c:h"))!=-1){
+	while((opt= getopt(argc,argv,"f:c:h"))!=-1){
 		switch(opt){
+		  case 'f':
+		  	com = String_read(optarg); break;
 		  case 'c':
-			com = stripQuotes(optarg); break;
+			com = String_copy(stripQuotes(optarg)); break;
 		  case 'h':
 			printf("options\n");
 			printf("-c <command> : input command\n");
+			printf("-f <file> : input source file\n");
 			return 0;
 		}
 	}
@@ -48,10 +53,11 @@ int main(int argc, char *argv[]){
 		}else{
 			//expr = Evaluate::function(expr);
 			if(expr){
-				 FullForm::mod(expr);
+				TreeForm::mod(expr);
 				expr->deleteRoot();
 			}
 		}
+		free(com);
 	}else{
 		for(;;){
 			char *line = readline(prompt);
@@ -68,13 +74,17 @@ int main(int argc, char *argv[]){
 					std::cout << "parse error\n";
 					continue;
 				}
+				/*
 				std::cout << KYEL << "after pre-eval" << KNRM << "\n";
 				TreeForm::mod(expr);
 				std::cout << std::endl;
+				*/
 				add_history(buf.c_str());
 				expr = SymbolTable::get(global_Evaluate)->evaluate(expr);
 				if(!expr){break;}
+				
 				std::cout << KYEL << "after eval" << KNRM << "\n";
+				
 				TreeForm::mod(expr);
 				std::cout << std::endl;
 				expr->deleteRoot();
@@ -96,3 +106,49 @@ char *stripQuotes(char *str){
 	}
 	return str;
 }
+
+char *String_ncopy(const char *str, int max){
+	int len = (max >0) ? max : strlen(str);
+	char *buf=NULL;
+	buf = (char*)malloc(len+1);
+	strncpy(buf,str,len);
+	buf[len]='\0';
+	return buf;
+}
+
+char *String_copy(const char *str){
+	if(!str){return NULL;}
+	return String_ncopy(str,-1);
+}
+
+unsigned long getFileSize(FILE *fp){	
+	unsigned long fsize = ftell(fp);
+	fpos_t p; 
+	fgetpos(fp,&p);
+	fseek(fp,0,SEEK_END);
+	fsize = ftell(fp) - fsize;
+	fsetpos(fp,&p);
+	return (unsigned long)fsize;
+} 
+
+char *String_fread(FILE *fp){
+	char *buf;
+	char c; unsigned long size;
+	size = getFileSize(fp);
+	buf = (char*)malloc(size+1);
+	fread(buf,1,size,fp); buf[size] = '\0';
+	return buf;
+}
+
+char *String_read(char *file){
+	char *buf;	
+	FILE *fp = fopen(file,"r");
+	if(fp==NULL){
+		printf("%s\n",file);
+		perror("String_read");return NULL;
+	}
+	buf = String_fread(fp);
+	fclose(fp);
+	return buf;
+}
+

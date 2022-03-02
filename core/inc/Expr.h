@@ -9,6 +9,12 @@
 #define PREC_SYMBOL -1
 #define PREC_MATCH -2
 #include <Data.h>
+
+#define HASH_DEPTH_BITMASK ((long)0xffff << 48)
+#define HASH_WIDTH_BITMASK ((long)0xffff << 32)
+#define HASH_PATTERN_BITMASK 0x80000000
+#define HASH_MAIN_BITMASK 0x7fffffff
+
 #define KNRM  "\x1B[0m"
 #define KBLK  "\x1B[30m"
 #define KRED  "\x1B[31m"
@@ -20,7 +26,6 @@
 #define KWHT "\x1B[37m"
 
 class Symbol;
-
 class Expr{
   public:
 	Expr *next;
@@ -29,6 +34,7 @@ class Expr{
 	Expr *child;
 	Symbol *symbol;
 	Data *data;
+	long hash;
 	
 	Expr();
 	Expr(int id);
@@ -43,7 +49,9 @@ class Expr{
 	void deleteChild(Expr *child);
 	void deleteChildren();
 	int length();
+	Expr* last();
 	int childCount();
+	long setHash();
 	std::string toString();
 	Expr* copy();
 	void swap(Expr& e1,Expr& e2);
@@ -56,11 +64,20 @@ class Expr{
 	Expr* replace(Expr *expr);
 	Expr* isolate();
 	Expr* getChild(int index);
+	
+	static Expr* pushTo(Expr *stack,Expr *expr);
+	Expr* push(Expr *expr);
+	Expr* pop();
+	Expr* top();
+	
 	friend void swap(Expr& e1,Expr& e2);
-
 	Expr& operator = (const Expr&);
 	bool operator == (const Expr&);
 
 	friend void swap(Expr&,Expr&);
+  private:
+	void init();
+	long str_to_hash(std::string);
+	long scramble(long);
 };
 #endif

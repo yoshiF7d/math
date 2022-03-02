@@ -2,8 +2,158 @@
 <ALIAS>木</ALIAS>
 <PRECEDENCE>670</PRECEDENCE>
 <ATTRIBUTES>Protected</ATTRIBUTES>
+<PROTO>
+/*
+class Node{
+	int left;
+	int center;
+	int right;
+	bool isleaf;
+	std::string string;
+	Expr *original;
+	Node *next;
+	
+	Node(Expr *expr = nullptr);
+	void print();
+};
+	
+Node::Node(Expr *expr){
+	this->left = 0;
+	this->center = 0;
+	this->right = 0;
+	this->isleaf = true;
+	if(expr){this->string = expr->toString();}
+	this->original = expr;
+	this->next = nullptr;
+}
+	
+void Node::print(){
+	printf("%s : %d %d %d\n",this->string,this->cs,this->cm,this->ce);
+}
+*/
+	
+	/*
+	class Column{
+	Node *root;
+	class Column *next;
+	
+	Column(Node *node);
+	void append(Node *node);
+	void deleteRoot();
+	}
+	
+	Column::Column(Node *node = nullptr){
+	this->root = node;
+	this->next = nullptr;
+	}
+	
+	void Column::append(Node *node){
+	Node *n;
+	for(n = this->root;n->next;n=n->next){}
+	n->next = node;
+	}
+	
+	void Column::deleteRoot(){
+	Node *next;
+	for(Node *n = this->root;n->next;n=next){
+		next = n->next;
+		delete n;
+	}
+	}
+	
+	class Row{
+	Column *root;
+	
+	Row(Column *column);
+	void append(Column *column);
+	void deleteRoot();
+	}
+	
+	Row::Row(Column *column){
+	this->root = column;
+	}
+	
+	void Row::append(Column *column){
+	Column *c;
+	for(c = this->root;c->next;c=c->next){}
+	c->next = node;
+	}
+	
+	void Row::deleteRoot(){
+	Column *next;
+	for(Column *c = this->root;c->next;c=next){
+		next = c->next;
+		delete c;
+	}
+	}
+	
+	class Tree{
+	TreeRow root;
+	int right;
+	Tree(Expr *expr);
+	void push(Expr *expr,TreeRow::iterator current);
+	}
+	
+	void Tree::push(Expr *expr, TreeRow::iterator current, int start){
+	if(expr){
+		if(expr->child){
+			if(current == this->root.end()){this->root.emplace_back(Node);}
+			for(Expr *child=expr->child;child;child=child->next){
+				Tree::push(child,std::next(current),this->right);
+			}
+			current->emplace_back(Node(nullptr));
+		}
+		Node node(expr);
+		int right = start + 1 + node.string;
+		node.left = start + 1;
+		if(expr->child){
+			if(this->right < right){
+				Tree::slide(std::next(current),expr,(right-this->right)/2);
+				node.right = right;
+			}else{
+				node.right = this->right;
+			}
+			node.isleaf = 0;
+		}else{
+			node.right = right;
+		}
+		node.center = (node.left + node.right)/2;
+		this->right = node.right;
+	}
+	current->push_back(node);
+	}
+	
+	void Tree::slide(TreeRow::iterator current, Expr *expr, int length){
+	TreeColumn::iterator eldest = Tree::eldest(current,expr);
+	for(TreeColumn::iterator column=eldest;column!=)
+	}
+	
+	TreeColumn::iterator Tree::eldest(TreeRow::iterator root, Expr *expr){
+	Expr *son = expr->child;
+	TreeColumn::iterator column;
+	for(TreeRow::iterator row=root;row!=this->root.end();row++){
+		for(column=row->begin();column!=row->end();column++){
+			if(!column->original){break;}
+			if(column->original==son){goto end;}
+		}
+	}
+  end:
+	return column;
+	}
+	
+	Tree::Tree(Expr *expr){
+	this->right = 0;
+	root.emplace_back(Node node);
+	current = root.begin();
+	this->set(expr,current);
+	}
+*/
+</PROTO>
 <SOURCE>
 #define TREEFORM_H_MAXDEPTH 256
+#include <sstream>
+//using TreeColumn = std::vector<TreeForm::Node>
+//using TreeRow = std::vector<TreeColumn>
 
 static Expr* mod2(Expr* expr, std::string branch){
 	if(!expr){
@@ -11,12 +161,29 @@ static Expr* mod2(Expr* expr, std::string branch){
 		return expr;
 	}
 	std::string estr = expr->toString();
+	/*
+	long hash = expr->hash;
+	estr += " (";
+	if(hash & HASH_PATTERN_BITMASK){
+		estr += "*";
+	}else{
+		estr += " ";
+	}
+	estr += std::to_string((hash & HASH_DEPTH_BITMASK)>>48);
+	estr += ",";
+	estr += std::to_string((hash & HASH_WIDTH_BITMASK)>>32);
+	estr += ",";
+	std::stringstream ss;
+	ss << std::hex << (hash & HASH_MAIN_BITMASK);
+	estr += ss.str();
+	estr += ")";
+	*/
 	std::cout << " " << estr  << " ";
 	int len = estr.length() + 2;
 	int blen;
 	if(!branch.empty()){blen = branch.length();}
 	else{blen=0;}
-		
+	
 	std::string nbranch;
 	nbranch.resize(blen+len+4);
 	for(int i=0;i<blen;i++){
@@ -61,6 +228,8 @@ static Expr* mod2(Expr* expr, std::string branch){
 }
 
 static void mod(Expr *expr){
+	if(expr){expr->setHash();}
+	Node n;
 	mod2(expr,std::string());
 }
 

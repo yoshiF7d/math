@@ -189,12 +189,12 @@ Expr* Parser::Tokenizer::readstring(){
 Expr* Parser::Tokenizer::read(Symbol *endtoken){
 	Expr *expr=nullptr;
 	std::string::iterator save;
-	while(isblank(*current)){current++;}
-	if(current==string.end()){return nullptr;}
-	save = current;
-	if((expr=Symbol::parse(&current))){return SymbolContainer::wrap(expr);} /*prevent symbol to bond when full form is inputed*/
-	if((expr=Number::parse(&current))){return expr;}
-	if((expr=String::parse(&current,string.end()))){return expr;}
+	while(isspace(*(this->current))){this->current++;}
+	if(this->current==this->string.end()){return nullptr;}
+	save = this->current;
+	if((expr=Symbol::parse(&(this->current)))){return SymbolContainer::wrap(expr);} /*prevent symbol to bond when full form is inputed*/
+	if((expr=Number::parse(&(this->current)))){return expr;}
+	if((expr=String::parse(&(this->current),string.end()))){return expr;}
 	if(optree){
 		Expr *last=optree;
 		bool hit;
@@ -303,6 +303,7 @@ void Parser::push(Expr *expr){
 	
 	if(dest->symbol->precedence >= 670){
 		if( 
+		/*checking expr*/
 		  (expr->symbol->id == global_Blank
 		|| expr->symbol->id == global_BlankSequence
 		|| expr->symbol->id == global_BlankNullSequence)
@@ -314,7 +315,8 @@ void Parser::push(Expr *expr){
 			e->appendChild(expr);
 			goto end;
 		}else if(
-		  (dest->symbol->id == global_Blank
+		/*checking dest*/
+		(  dest->symbol->id == global_Blank
 		|| dest->symbol->id == global_BlankSequence
 		|| dest->symbol->id == global_BlankNullSequence)
 		|| dest->symbol->id == global_Slot
@@ -456,7 +458,7 @@ Expr* Parser::parse(){
 					//TreeForm::mod(expr->parent);
 					for(Expr *e=expr;e;e=e->previous){
 						if(e->symbol->id != internal_Character && 
-							e->symbol->associativity!=Associativity::pre){
+							e->symbol->associativity != Associativity::pre){
 							expr=e; break;
 						}
 					}
@@ -472,9 +474,11 @@ Expr* Parser::parse(){
 		pushDirect(new Expr(global_Null));
 	}
 	if(!end){
+		
 		std::cout << KYEL << "before pre-eval" << KNRM << "\n";
 		TreeForm::mod(root);
 		std::cout << std::endl;
+		
 		root = preEvaluate(root);
 	}
 	//std::cout << "parse end\n";

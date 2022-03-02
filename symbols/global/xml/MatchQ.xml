@@ -9,6 +9,8 @@ Expr* evaluate(Expr* expr) override{
 		return expr;
 	}
 	Expr *e;
+	$00->setHash();
+	$01->setHash();
 	if(mod($00,$01)){
 		e = expr->replace(new Expr(global_True));
 	}else{
@@ -17,35 +19,198 @@ Expr* evaluate(Expr* expr) override{
 	delete expr;
 	return e;
 }
+
 static bool mod(Expr* expr, Expr* form){
-	return true;	
+	if(!expr){
+		return form ? false : true;
+	}else if(!form){
+		return false;
+	}
+	
+	Expr *e,*f;
+	
+	if(form->hash & HASH_PATTERN_BITMASK){
+		return pattern_match(expr,form);
+	}else{
+		return simple_match(expr,form);
+	}
+	return true;
 }
 
-static bool sm(Expr* e1, Expr* e2){
-	if(e1->childCount() == e2->childCount()){
-		Expr* c1 = e1->child;
-		Expr* c2 = e2->child;
-		for(;c1&&c2;c1=c1->next,c2=c2->next){
-			if(!sm(c1,c2)){
-				return false;
-			}
+static bool simple_match(Expr* expr, Expr* form){
+	Expr *e,*f;
+	if(form->hash!=expr->hash){return false;}
+	else{
+		for(e=expr->child,f=form->child;e && f;e=e->next,f=f->next){
+			if(!simple_match(e,f)){return false;}
 		}
 		return true;
 	}
-	return false;
 }
 
-static bool cm(Expr* e1, Expr* e2){
-	if(e1->symbol != e2->symbol){return false;}
-	if(e1->child){
-		Expr* c1 = e1->child;
-		Expr* c2 = e2->child;
-		for(;c1&&c2;c1=c1->next,c2=c2->next){
-			if(!cm(c1,c2)){
-				return false;
-			}
+static bool pattern_match(Expr* expr, Expr* form){
+	Expr *e,*f;
+	for(e=expr->child,f=form->child;e && f;e=e->next,f=f->next){
+		if(f->hash & HASH_PATTERN_BITMASK){
+			if(!pattern_match(e,f)){return false;}
+		}else{
+			if(!simple_match(e,f)){return false;}
 		}
 	}
 	return true;
 }
+
+/*
+static bool pattern_match_test2(Expr* expr, Expr* form){
+	Expr *cur,*start,*end,*symb,*stack=nullptr;
+	if(form->symbol->id == global_Pattern && form->child && form->child->next){
+			cur = form->child->next;
+		}else{
+			cur = form;
+	}
+	switch(cur->symbol->id){
+	  case global_Blank:
+		symb = cur->child;
+		if(symb && symb->symbol->id != expr->symbol->id){
+			goto nomatch;
+		}
+		start = castData(BlankData,cur->data)->start;
+		end = castData(BlankData,cur->data)->end;
+		if(end){
+			end = end->child;
+		}else{
+			start = end = expr;
+		}
+		castData(BlankData,cur->data)->start = start;
+		castData(BlankData,cur->data)->end = end;
+		break;
+	  case global_BlankSequence:
+		start = castData(BlankSequenceData,cur->data)->start;
+		end = castData(BlankSequenceData,cur->data)->end;
+		symb = cur->child;
+		for(e=start;e;e=e->next){
+			if(symb && symb->symbol->id != e->symbol->id){
+				goto nomatch;
+			}
+		}
+		if(end){
+			end = end->next;
+		}else{
+			start = end = e;
+		}
+		castData(BlankData,cur->data)->start = start;
+		castData(BlankData,cur->data)->end = end;
+		break;
+	  case global_BlankNullSequence:
+		start = castData(BlankNullSequenceData,cur->data)->start;
+		end = castData(BlankNullSequenceData,cur->data)->end;
+		symb = cur->child;
+		for(e=start;e;e=e->next){
+			if(symb && symb->symbol->id != e->symbol->id){
+				goto nomatch;
+			}
+		}
+		if(end){
+			end = end->next;
+		}else{
+			start = end = e;
+		}
+		castData(BlankNullSequenceData,cur->data)->start = start;
+		castData(BlankNullSequenceData,cur->data)->end = end;
+		break;
+	  default:
+			if(f->hash!=expr->hash){break;}
+		break;
+	}
+}
+*/
+
+/*
+static bool pattern_match_test(Expr* expr, Expr* form){
+	Expr *e,*f,*cur,*start,*end,*symb,*stack = nullptr;
+	
+	for(e=expr,f=form;e&&f;e=e->next,f=f->next){
+		if(f->symbol->id == global_Pattern && f->child && f->child->next){
+			cur = f->child->next;
+		}else{
+			cur = f;
+		}
+		switch(cur->symbol->id){
+		  case global_Blank:
+			start = castData(BlankData,cur->data)->start;
+			end = castData(BlankData,cur->data)->end;
+			symb = cur->child;
+			if(symb && symb->symbol->id != e->symbol->id){
+				goto nomatch;
+			}
+			
+			if(end){
+				end = end->child;
+			}else{
+				start = end = e;
+			}
+			castData(BlankData,cur->data)->start = start;
+			castData(BlankData,cur->data)->end = end;
+			break;
+		  case global_BlankSequence:
+			start = castData(BlankSequenceData,cur->data)->start;
+			end = castData(BlankSequenceData,cur->data)->end;
+			symb = cur->child;
+			for(e=start;e;e=e->next){
+				if(symb && symb->symbol->id != e->symbol->id){
+					goto nomatch;
+				}
+			}
+			if(end){
+				end = end->next;
+			}else{
+				start = end = e;
+			}
+			castData(BlankData,cur->data)->start = start;
+			castData(BlankData,cur->data)->end = end;
+			break;
+		  case global_BlankNullSequence:
+			start = castData(BlankNullSequenceData,cur->data)->start;
+			end = castData(BlankNullSequenceData,cur->data)->end;
+			symb = cur->child;
+			for(e=start;e;e=e->next){
+				if(symb && symb->symbol->id != e->symbol->id){
+					goto nomatch;
+				}
+			}
+			if(end){
+				end = end->next;
+			}else{
+				start = end = e;
+			}
+			castData(BlankNullSequenceData,cur->data)->start = start;
+			castData(BlankNullSequenceData,cur->data)->end = end;
+			break;
+		  default:
+				if(f->hash!=expr->hash){break;}
+			break;
+		}
+	}
+	
+	e=expr->child;
+	for(f=form->child;f;f=f->next){
+		if(f->hash==expr->hash){continue;}
+		switch(f->symbol->id){
+		  case global_Pattern:
+		  case global_Blank:
+		  case global_BlankSequence:
+		  case global_BlankNullSequence:
+		    break;
+		}
+	}
+	for(e=expr->child,f=form->child;e && f;e=e->next,f=f->next){
+		if(f->hash & HASH_PATTERN_BITMASK){
+			if(!pattern_match(e,f)){return false;}
+		}else{
+			if(!simple_match(e,f)){return false;}
+		}
+	}
+	return true;
+}
+*/
 </SOURCE>

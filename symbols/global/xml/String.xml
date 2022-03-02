@@ -53,6 +53,7 @@ struct StringData : Data{
 	StringData(std::string);
 	~StringData();
 	std::string toString() override;
+	char order(Expr *e);
 };
 </DATAINC>
 <DATASRC>
@@ -71,4 +72,20 @@ std::string StringData::toString(){
 		return SymbolTable::get(global_String)->toString();
 	}
 }
+char StringData::order(Expr *expr){
+	if(!expr){return -1;}
+	std::string str;
+	switch(expr->symbol->id){
+	  case global_String:
+		str = castData(StringData,expr->data)->string;
+		break;
+	  case global_Integer:
+	  case global_Real:
+	    return 1;
+	  default:
+	    str = expr->symbol->name;
+	}
+	return (char)this->string.compare(str);
+}
+
 </DATASRC>

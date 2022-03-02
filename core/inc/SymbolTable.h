@@ -16,7 +16,7 @@ class SymbolTable{
 	static Context *local;
 	static std::list<Context> context;
 	static SymbolMap alias;
-	static Symbol *idtable[ID::end];
+	static Symbol *idtable[id_end];
 	
 	static void init();
 	static void finish();
